@@ -3,19 +3,20 @@
    -------------------------------------------------------------------------
    One dark, chrome-accented brand. Every colour and type decision is a CSS
    custom property, so the BCO palette can be tuned by editing the BRAND
-   TOKENS block alone. The aesthetic: near-black canvas, a cool blue glow,
-   editorial hairline grid, liquid-chrome mark, mono technical labels and
-   huge bold display type.
+   TOKENS block alone. The aesthetic: pure black-and-white — near-black
+   canvas, bright chrome/white accents, a falling matrix-rain backdrop,
+   editorial hairline grid, mono technical labels and huge bold display type.
    ========================================================================= */
 
 /* ---- BRAND TOKENS ------------------------------------------------------- */
 :root {
-  /* Chrome — used for the mark, wordmark accents and metallic surfaces. */
+  /* Chrome — used for the mark, wordmark accents and metallic surfaces.
+     Pure neutral greys: no colour cast. */
   --chrome-1: #ffffff;
-  --chrome-2: #dfe5ee;
-  --chrome-3: #aab4c4;
-  --chrome-4: #7a8499;
-  --chrome-5: #eef2f7;
+  --chrome-2: #e6e6e6;
+  --chrome-3: #ababab;
+  --chrome-4: #7d7d7d;
+  --chrome-5: #f2f2f2;
   --chrome: linear-gradient(
     160deg,
     var(--chrome-1) 0%,
@@ -25,45 +26,46 @@
     var(--chrome-2) 100%
   );
 
-  /* Cool signal blue — the glow behind the mark and the focus accent. */
-  --blue: #7fb2ff;
-  --blue-deep: #2a5fd0;
-  --glow: rgba(120, 170, 255, 0.45);
+  /* Monochrome signal — the accent + glow are now pure white. The token is
+     still named --blue so existing references stay valid; nothing renders blue. */
+  --blue: #ffffff;
+  --blue-deep: #999999;
+  --glow: rgba(255, 255, 255, 0.22);
 
   /* Legacy palette names kept as on-brand aliases so no stray reference
-     ever renders in the old warm colours. */
-  --bco-red: #cdd6e3;
-  --bco-red-deep: #aab4c4;
-  --canal-blue: #7fb2ff;
-  --canal-blue-deep: #2a5fd0;
-  --tulip-pink: #9fb4d8;
-  --parliament-copper: #8fd6b0;
-  --gold: #d8c08a;
+     ever renders in a colour — all neutral now. */
+  --bco-red: #d6d6d6;
+  --bco-red-deep: #ababab;
+  --canal-blue: #ffffff;
+  --canal-blue-deep: #999999;
+  --tulip-pink: #c4c4c4;
+  --parliament-copper: #cfcfcf;
+  --gold: #d8d8d8;
 }
 
 /* ---- SEMANTIC TOKENS (single dark theme) -------------------------------- */
 :root {
-  --bg: #06070b;
-  --bg-subtle: #090b11;
-  --surface: #0d1017;
-  --surface-2: #12161f;
-  --surface-3: #171c27;
+  --bg: #050505;
+  --bg-subtle: #0b0b0b;
+  --surface: #0d0d0d;
+  --surface-2: #131313;
+  --surface-3: #1a1a1a;
 
-  --text: #f4f6fa;
-  --text-muted: #9aa3b2;
-  --text-subtle: #5b6472;
+  --text: #f5f5f5;
+  --text-muted: #a0a0a0;
+  --text-subtle: #6a6a6a;
 
-  --border: rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
 
-  --accent: #cdd6e3; /* steel — restrained interactive accent */
+  --accent: #d6d6d6; /* steel — restrained interactive accent */
   --accent-hover: #ffffff;
-  --accent-contrast: #06070b;
-  --accent-soft: rgba(127, 178, 255, 0.12);
+  --accent-contrast: #050505;
+  --accent-soft: rgba(255, 255, 255, 0.1);
 
-  --link: #9fc2ff;
-  --ring-glow: rgba(120, 170, 255, 0.25);
-  --node: #cdd6e3;
+  --link: #ffffff;
+  --ring-glow: rgba(255, 255, 255, 0.16);
+  --node: #d6d6d6;
   --node-line: rgba(255, 255, 255, 0.16);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -131,12 +133,12 @@ body {
   background-image:
     radial-gradient(
       1100px 620px at 78% -8%,
-      rgba(127, 178, 255, 0.16),
+      rgba(255, 255, 255, 0.06),
       transparent 60%
     ),
     radial-gradient(
       820px 520px at -8% 12%,
-      rgba(80, 120, 220, 0.1),
+      rgba(255, 255, 255, 0.04),
       transparent 55%
     ),
     linear-gradient(
@@ -150,7 +152,7 @@ body {
       transparent calc(100% - 1px),
       var(--grid-c) 0
     );
-  --grid-c: rgba(255, 255, 255, 0.022);
+  --grid-c: rgba(255, 255, 255, 0.025);
   background-size:
     100% 100%,
     100% 100%,
@@ -198,7 +200,7 @@ h4 {
 
 ::selection {
   background: var(--blue);
-  color: #06070b;
+  color: #050505;
 }
 
 /* ---- LAYOUT HELPERS ----------------------------------------------------- */
@@ -251,24 +253,27 @@ h4 {
   max-width: 60ch;
 }
 
-/* Liquid-chrome gradient clipped to text — for wordmark accents. */
+/* Liquid-chrome gradient clipped to text — for wordmark accents.
+   NOTE: no text-shadow here. A blurred text-shadow is NOT clipped by an
+   ancestor's overflow:hidden, so it used to bleed well past the hero /
+   manifesto frames. The clipped metallic gradient reads cleanly on its own;
+   any "glow" must be a contained, overflow-clipped layer (see .chrome-glow). */
 .chrome-text {
   background: linear-gradient(
     178deg,
     #ffffff 0%,
-    #e7ecf3 30%,
-    #9aa6b8 54%,
+    #f2f2f2 30%,
+    #a6a6a6 54%,
     #ffffff 70%,
-    #c2cbd9 100%
+    #cccccc 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: 0 1px 30px rgba(127, 178, 255, 0.18);
 }
 .text-gradient {
   /* kept for backwards-compat: now a chrome wash */
-  background: linear-gradient(178deg, #ffffff, #aab4c4 60%, #eef2f7);
+  background: linear-gradient(178deg, #ffffff, #ababab 60%, #f2f2f2);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -344,15 +349,15 @@ h4 {
   transform: translateY(0);
 }
 .btn-primary {
-  --btn-bg: #f4f6fa;
-  --btn-fg: #06070b;
-  --btn-bd: #f4f6fa;
+  --btn-bg: #f5f5f5;
+  --btn-fg: #050505;
+  --btn-bd: #f5f5f5;
   box-shadow: 0 0 0 0 var(--glow);
 }
 .btn-primary:hover {
   --btn-bg: #ffffff;
   --btn-bd: #ffffff;
-  box-shadow: 0 8px 30px rgba(127, 178, 255, 0.25);
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.18);
 }
 
 /* ---- CARDS & TAGS ------------------------------------------------------- */
@@ -390,14 +395,26 @@ h4 {
 html.motion [data-reveal],
 html.motion [data-reveal-stagger] > * {
   opacity: 0;
-  transform: translateY(26px);
+  transform: translateY(48px);
   will-change: opacity, transform;
 }
 html.motion [data-reveal="fade"] {
   transform: none;
 }
+/* Clip-path wipe entrance — bottom-clipped to nothing, then wiped open from
+   the top. Self-contained to the element's box, so it never bleeds its frame. */
+html.motion [data-mask] {
+  opacity: 0;
+  transform: translateY(28px);
+  clip-path: inset(0% 0% 100% 0%);
+  will-change: opacity, transform, clip-path;
+}
+/* Kinetic manifesto words: dim, lifted ghosts that brighten + rise on scrub. */
 html.motion [data-manifesto] .m-word {
-  opacity: 0.14;
+  opacity: 0.1;
+  transform: translateY(0.25em);
+  display: inline-block;
+  will-change: opacity, transform;
 }
 
 /* ---- ACCESSIBILITY ------------------------------------------------------ */
@@ -419,7 +436,7 @@ html.motion [data-manifesto] .m-word {
   left: 1rem;
   z-index: 200;
   background: var(--blue);
-  color: #06070b;
+  color: #050505;
   padding: 0.6rem 1rem;
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   font-weight: 700;

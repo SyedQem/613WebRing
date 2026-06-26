@@ -20,9 +20,9 @@ const year = new Date().getFullYear();
           The 613 Webring
         </p>
 
-        <h1 class="hero-title" data-reveal-stagger>
-          <span class="hl-line">Ottawa's builders,</span>
-          <span class="hl-line"
+        <h1 class="hero-title" data-skew>
+          <span class="hl-line" data-mask>Ottawa's builders,</span>
+          <span class="hl-line" data-mask
             >linked in a <span class="chrome-text">ring.</span></span
           >
         </h1>
@@ -157,7 +157,7 @@ const year = new Date().getFullYear();
   }
   .stat .num {
     font-family: var(--font-mono);
-    color: #fff;
+    color: var(--text);
   }
 
   .hero-scroll {
