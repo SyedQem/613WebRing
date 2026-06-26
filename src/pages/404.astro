@@ -1,12 +1,12 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import RingMark from "../components/RingMark.astro";
+import BcoLogo from "../components/BcoLogo.astro";
 ---
 
 <BaseLayout title="Lost in the ring" noindex>
   <section class="nf">
     <div class="container nf-inner">
-      <span class="nf-mark"><RingMark size={56} /></span>
+      <BcoLogo size={56} class="nf-mark" />
       <p class="nf-code">404</p>
       <h1>You've wandered off the ring</h1>
       <p class="lead">
@@ -15,7 +15,7 @@ import RingMark from "../components/RingMark.astro";
       </p>
       <div class="nf-actions">
         <a class="btn btn-primary" href="/">Back to the ring</a>
-        <a class="btn" href="/nav?dir=random">Hop somewhere random 🎲</a>
+        <a class="btn" href="/nav?dir=random">Hop somewhere random</a>
       </div>
     </div>
   </section>
@@ -29,17 +29,19 @@ import RingMark from "../components/RingMark.astro";
     text-align: center;
     padding: 3rem 1rem;
   }
-  .nf-mark {
-    display: inline-flex;
-    color: var(--accent);
+  .nf :global(.nf-mark) {
+    width: 56px;
+    height: 56px;
+    margin-inline: auto;
   }
   .nf-code {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: clamp(3rem, 12vw, 5rem);
-    color: var(--accent);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.5rem, 10vw, 4rem);
+    color: var(--text-subtle);
     line-height: 1;
-    margin: 0.4rem 0;
+    margin: 0.6rem 0;
+    letter-spacing: -0.03em;
   }
   .nf h1 {
     font-size: clamp(1.5rem, 5vw, 2.2rem);

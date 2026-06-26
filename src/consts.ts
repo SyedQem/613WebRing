@@ -23,6 +23,8 @@ export const BCO = {
   name: "Builders Collective Ottawa",
   short: "BCO",
   url: "https://builderscollective.ca",
+  instagram: "https://instagram.com/builderscollectiveottawa",
+  discord: "https://discord.gg/builderscollective",
 } as const;
 
 /** Public repository — where members open their pull request to join. */
@@ -41,5 +43,7 @@ export const NAV_LINKS = [
 /** Social / community links surfaced in the footer. */
 export const SOCIAL_LINKS = [
   { label: "Builders Collective Ottawa", href: BCO.url },
+  { label: "Instagram", href: BCO.instagram },
+  { label: "Discord", href: BCO.discord },
   { label: "GitHub", href: REPO_URL },
 ] as const;

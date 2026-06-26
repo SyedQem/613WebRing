@@ -4,6 +4,8 @@
   "exclude": ["dist"],
   "compilerOptions": {
     "strictNullChecks": true,
-    "allowJs": true
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }

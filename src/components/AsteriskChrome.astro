@@ -1,0 +1,178 @@
+---
+/**
+ * The liquid-chrome BCO asterisk — the hero centerpiece. Built from layered
+ * stroke gradients (dark edge → chrome body → top sheen) plus a blue glow,
+ * a gentle CSS float and a self-contained 3D mouse-tilt. All motion is
+ * reduced-motion guarded and decorative (aria-hidden).
+ *
+ * Transforms are layered so nothing fights:
+ *   .ac        → scroll parallax (GSAP, via data-parallax)
+ *   .ac-float  → idle float (CSS keyframes) + perspective
+ *   .ac-tilt   → mouse tilt (JS rotateX/Y)
+ */
+interface Props {
+  class?: string;
+  parallax?: number;
+}
+const { class: className, parallax = 0.35 } = Astro.props;
+
+const cx = 100;
+const cy = 100;
+const arms = [
+  { a: 0, len: 80 },
+  { a: 58, len: 74 },
+  { a: -58, len: 74 },
+  { a: 128, len: 82 },
+  { a: -128, len: 82 },
+];
+const tips = arms.map(({ a, len }) => {
+  const r = (a * Math.PI) / 180;
+  return { x: cx + Math.sin(r) * len, y: cy - Math.cos(r) * len };
+});
+---
+
+<div class:list={["ac", className]} data-parallax={parallax} aria-hidden="true">
+  <div class="ac-glow"></div>
+  <div class="ac-float">
+    <div class="ac-tilt">
+      <svg viewBox="0 0 200 200" class="ac-svg" role="presentation">
+        <defs>
+          <linearGradient
+            id="acChrome"
+            gradientUnits="userSpaceOnUse"
+            x1="100"
+            y1="18"
+            x2="100"
+            y2="184"
+          >
+            <stop offset="0" stop-color="#ffffff"></stop>
+            <stop offset="0.16" stop-color="#f2f2f2"></stop>
+            <stop offset="0.38" stop-color="#b5b5b5"></stop>
+            <stop offset="0.52" stop-color="#8a8a8a"></stop>
+            <stop offset="0.66" stop-color="#cfcfcf"></stop>
+            <stop offset="0.86" stop-color="#ffffff"></stop>
+            <stop offset="1" stop-color="#d7d7d7"></stop>
+          </linearGradient>
+          <linearGradient
+            id="acHi"
+            gradientUnits="userSpaceOnUse"
+            x1="100"
+            y1="18"
+            x2="100"
+            y2="120"
+          >
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"></stop>
+            <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.12"></stop>
+            <stop offset="1" stop-color="#ffffff" stop-opacity="0"></stop>
+          </linearGradient>
+        </defs>
+
+        <!-- dark edge for definition against the near-black canvas -->
+        <g
+          stroke="#070707"
+          stroke-width="34"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          {tips.map((t) => <line x1={cx} y1={cy} x2={t.x} y2={t.y} />)}
+        </g>
+        <!-- chrome body -->
+        <g
+          stroke="url(#acChrome)"
+          stroke-width="29"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          {tips.map((t) => <line x1={cx} y1={cy} x2={t.x} y2={t.y} />)}
+        </g>
+        <!-- top sheen highlight -->
+        <g
+          stroke="url(#acHi)"
+          stroke-width="11"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          {tips.map((t) => <line x1={cx} y1={cy} x2={t.x} y2={t.y} />)}
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ac {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    aspect-ratio: 1;
+    margin-inline: auto;
+    display: grid;
+    place-items: center;
+  }
+  .ac-glow {
+    position: absolute;
+    inset: 4% 4% 0 4%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 42%,
+      rgba(255, 255, 255, 0.28),
+      rgba(255, 255, 255, 0.08) 42%,
+      transparent 68%
+    );
+    filter: blur(10px);
+    z-index: 0;
+  }
+  .ac-float {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    perspective: 900px;
+    animation: ac-float 7s ease-in-out infinite;
+  }
+  .ac-tilt {
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.25s var(--ease);
+  }
+  .ac-svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55))
+      drop-shadow(0 0 26px rgba(255, 255, 255, 0.2));
+  }
+  @keyframes ac-float {
+    0%,
+    100% {
+      transform: translateY(-1.5%);
+    }
+    50% {
+      transform: translateY(1.5%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ac-float {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Subtle 3D tilt toward the pointer. Pointer-fine + motion-allowed only.
+  const allowMotion =
+    document.documentElement.classList.contains("motion") &&
+    window.matchMedia("(pointer: fine)").matches;
+  if (allowMotion) {
+    document.querySelectorAll<HTMLElement>(".ac").forEach((ac) => {
+      const tilt = ac.querySelector<HTMLElement>(".ac-tilt");
+      if (!tilt) return;
+      const onMove = (e: MouseEvent) => {
+        const r = ac.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width / 2)) / window.innerWidth;
+        const dy = (e.clientY - (r.top + r.height / 2)) / window.innerHeight;
+        tilt.style.transform = `rotateY(${dx * 16}deg) rotateX(${dy * -16}deg)`;
+      };
+      window.addEventListener("mousemove", onMove, { passive: true });
+    });
+  }
+</script>

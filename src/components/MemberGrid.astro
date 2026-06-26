@@ -16,17 +16,17 @@ const searchList = members.map((m) => ({
 <section id="members" class="section">
   <div class="container">
     <header class="md-head">
-      <p class="eyebrow">
-        <span class="dot" aria-hidden="true"></span> The directory
-      </p>
-      <h2 class="section-title">{memberCount} builders in the 613</h2>
-      <p class="lead">
+      <p class="eyebrow">The directory</p>
+      <h2 class="section-title" data-reveal="fade">
+        {memberCount} builders in the 613
+      </h2>
+      <p class="lead" data-reveal="fade">
         Everyone shipping software out of Ottawa — students, founders, hobbyists
         and seasoned engineers. Search by name, stack or neighbourhood.
       </p>
     </header>
 
-    <div class="md-controls">
+    <div class="md-controls" data-reveal>
       <label class="search" for="member-search">
         <svg
           width="18"
@@ -82,7 +82,7 @@ const searchList = members.map((m) => ({
       Showing all {memberCount} sites
     </p>
 
-    <div class="member-grid" id="member-grid">
+    <div class="member-grid" id="member-grid" data-reveal-stagger>
       {members.map((m) => <MemberCard member={m} />)}
     </div>
 
@@ -105,13 +105,6 @@ const searchList = members.map((m) => ({
     max-width: 60ch;
     margin-bottom: 2rem;
   }
-  .eyebrow .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-soft);
-  }
   .md-controls {
     display: flex;
     flex-wrap: wrap;
@@ -125,15 +118,15 @@ const searchList = members.map((m) => ({
     gap: 0.5rem;
     flex: 1 1 260px;
     max-width: 380px;
-    padding: 0.65rem 1rem;
+    padding: 0.7rem 1rem;
     background: var(--surface);
-    border: 1.5px solid var(--border-strong);
+    border: 1px solid var(--border-strong);
     border-radius: 999px;
     color: var(--text-subtle);
     transition: border-color 0.18s var(--ease);
   }
   .search:focus-within {
-    border-color: var(--accent);
+    border-color: var(--blue);
   }
   .search input {
     border: none;
@@ -150,8 +143,9 @@ const searchList = members.map((m) => ({
   }
   .chip {
     font-family: var(--font-mono);
-    font-size: 0.78rem;
-    padding: 0.35rem 0.7rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+    padding: 0.38rem 0.75rem;
     border-radius: 999px;
     border: 1px solid var(--border-strong);
     background: var(--surface);
@@ -163,17 +157,18 @@ const searchList = members.map((m) => ({
       border-color 0.15s var(--ease);
   }
   .chip:hover {
-    border-color: var(--accent);
+    border-color: var(--blue);
     color: var(--text);
   }
   .chip.is-active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--accent-contrast);
+    background: #f5f5f5;
+    border-color: #f5f5f5;
+    color: #050505;
   }
   .md-count {
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
     color: var(--text-subtle);
     margin-bottom: 1.4rem;
   }

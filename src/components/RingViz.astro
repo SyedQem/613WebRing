@@ -1,8 +1,6 @@
 ---
 import { members, memberCount } from "../lib/members";
 
-// Keep the visualisation readable: if the ring grows large, sample evenly so
-// the circle never gets crowded. Everyone still appears in the directory below.
 const MAX_NODES = 36;
 const shown =
   members.length <= MAX_NODES
@@ -22,89 +20,96 @@ const nodes = shown.map((m, i) => {
 });
 ---
 
-<div class="ringviz" data-count={memberCount}>
-  <svg viewBox="0 0 400 400" class="ringviz-svg" role="presentation">
-    <!-- decorative rotating dashed ring -->
-    <circle
-      class="spin-ring"
-      cx={cx}
-      cy={cy}
-      r="178"
-      fill="none"
-      stroke="var(--node-line)"
-      stroke-width="1.5"
-      stroke-dasharray="2 10"
-      aria-hidden="true"></circle>
-    <!-- the ring the nodes sit on -->
-    <circle
-      cx={cx}
-      cy={cy}
-      r={r}
-      fill="none"
-      stroke="var(--border-strong)"
-      stroke-width="2"
-      aria-hidden="true"></circle>
-
-    {
-      nodes.map((n) => (
-        <a
-          href={n.website}
-          class="node"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-name={n.name}
-          data-domain={n.domain}
-          data-role={n.role ?? ""}
-          aria-label={`${n.name} — ${n.domain}`}
-        >
-          <circle class="node-halo" cx={n.x} cy={n.y} r="18" />
-          <circle class="node-dot" cx={n.x} cy={n.y} r="10" />
-        </a>
-      ))
-    }
-  </svg>
-
-  <div class="ringviz-center" aria-hidden="true">
-    <div class="rc-default">
-      <span class="rc-count">{memberCount}</span>
-      <span class="rc-label">sites in the ring</span>
-      <span class="rc-hint">hover a node</span>
+<section id="ring" class="section ring" data-section-glow>
+  <div class="container ring-grid">
+    <div class="ring-copy">
+      <p class="eyebrow" data-reveal="fade">The ring</p>
+      <h2 class="section-title" data-reveal="fade">
+        {memberCount} sites, one continuous loop.
+      </h2>
+      <p class="lead" data-reveal="fade">
+        Every node is a builder's personal site. Hover one to see who's there —
+        then jump in anywhere and ride the ring all the way around.
+      </p>
+      <div class="ring-cta" data-reveal>
+        <a class="btn" href="#members">Browse the directory</a>
+        <a class="btn btn-primary" href="/join">Add your node</a>
+      </div>
     </div>
-    <div class="rc-hover" hidden>
-      <span class="rc-name"></span>
-      <span class="rc-domain mono"></span>
-      <span class="rc-role"></span>
+
+    <div class="ring-viz-wrap" data-reveal="fade">
+      <div class="ringviz" data-count={memberCount}>
+        <svg viewBox="0 0 400 400" class="ringviz-svg" role="presentation">
+          <circle
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill="none"
+            stroke="var(--border-strong)"
+            stroke-width="1.5"
+            aria-hidden="true"></circle>
+
+          {
+            nodes.map((n) => (
+              <a
+                href={n.website}
+                class="node"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-name={n.name}
+                data-domain={n.domain}
+                data-role={n.role ?? ""}
+                aria-label={`${n.name} — ${n.domain}`}
+              >
+                <circle class="node-halo" cx={n.x} cy={n.y} r="16" />
+                <circle class="node-dot" cx={n.x} cy={n.y} r="8" />
+              </a>
+            ))
+          }
+        </svg>
+
+        <div class="ringviz-center" aria-hidden="true">
+          <div class="rc-default">
+            <span class="rc-count">{memberCount}</span>
+            <span class="rc-label">sites in the ring</span>
+            <span class="rc-hint">hover a node</span>
+          </div>
+          <div class="rc-hover" hidden>
+            <span class="rc-name"></span>
+            <span class="rc-domain mono"></span>
+            <span class="rc-role"></span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
 <style>
+  .ring-grid {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(1.5rem, 5vw, 3.5rem);
+    align-items: center;
+  }
+  .ring-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.8rem;
+  }
+
   .ringviz {
     position: relative;
     width: 100%;
-    max-width: 460px;
+    max-width: 440px;
     aspect-ratio: 1;
     margin-inline: auto;
-    filter: drop-shadow(0 20px 40px var(--ring-glow));
   }
   .ringviz-svg {
     width: 100%;
     height: 100%;
     overflow: visible;
-  }
-  .spin-ring {
-    transform-origin: 200px 200px;
-    animation: ringspin 60s linear infinite;
-  }
-  @keyframes ringspin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .spin-ring {
-      animation: none;
-    }
   }
 
   .node {
@@ -112,8 +117,8 @@ const nodes = shown.map((m, i) => {
   }
   .node-dot {
     fill: var(--node);
-    stroke: var(--surface);
-    stroke-width: 3;
+    stroke: var(--bg);
+    stroke-width: 2.5;
     transition:
       r 0.2s var(--ease),
       fill 0.2s var(--ease);
@@ -125,11 +130,12 @@ const nodes = shown.map((m, i) => {
   }
   .node:hover .node-dot,
   .node:focus-visible .node-dot {
-    fill: var(--accent-hover);
+    fill: #fff;
+    r: 10;
   }
   .node:hover .node-halo,
   .node:focus-visible .node-halo {
-    opacity: 0.18;
+    opacity: 0.15;
   }
   .node:focus-visible {
     outline: none;
@@ -151,23 +157,22 @@ const nodes = shown.map((m, i) => {
     max-width: 56%;
   }
   .rc-count {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: clamp(2.2rem, 9vw, 3rem);
-    color: var(--accent);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.2rem, 8vw, 3rem);
     line-height: 1;
+    letter-spacing: -0.03em;
   }
   .rc-label {
-    font-family: var(--font-display);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     color: var(--text-muted);
-    font-size: 0.95rem;
+    margin-top: 0.35rem;
   }
   .rc-hint {
-    margin-top: 0.4rem;
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    margin-top: 0.45rem;
+    font-size: 0.72rem;
     color: var(--text-subtle);
   }
   .rc-name {
@@ -178,7 +183,9 @@ const nodes = shown.map((m, i) => {
     line-height: 1.2;
   }
   .rc-domain {
-    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted);
   }
   .rc-role {
     margin-top: 0.2rem;
@@ -187,6 +194,15 @@ const nodes = shown.map((m, i) => {
   }
   [hidden] {
     display: none !important;
+  }
+
+  @media (max-width: 860px) {
+    .ring-grid {
+      grid-template-columns: 1fr;
+    }
+    .ring-viz-wrap {
+      order: -1;
+    }
   }
 </style>
 

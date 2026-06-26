@@ -1,7 +1,10 @@
 ---
 /**
- * The 613 Webring mark: nodes linked in a ring. Inherits `currentColor`,
- * so colour it from the parent. Used in the nav wordmark, favicon and widget.
+ * The Builders Collective Ottawa mark — a six… er, five-armed asterisk with an
+ * open base (a "crown + legs" gesture). Drawn as round-capped strokes that meet
+ * at a solid hub. Inherits `currentColor`, so colour it from the parent (the
+ * nav, footer, favicon and CTA all reuse it). For the large chrome hero render
+ * see AsteriskChrome.astro.
  */
 interface Props {
   size?: number;
@@ -9,10 +12,20 @@ interface Props {
 }
 const { size = 28, class: className } = Astro.props;
 
-// Six nodes evenly placed on a circle of radius 38 (viewBox 100x100, centre 50).
-const nodes = Array.from({ length: 6 }, (_, i) => {
-  const a = (Math.PI / 3) * i - Math.PI / 2;
-  return { x: 50 + 38 * Math.cos(a), y: 50 + 38 * Math.sin(a) };
+// Arm directions as (angle from vertical-up, clockwise°) + length. The bottom
+// is intentionally open, giving the mark its distinctive splayed-legs stance.
+const arms = [
+  { a: 0, len: 40 },
+  { a: 58, len: 37 },
+  { a: -58, len: 37 },
+  { a: 128, len: 41 },
+  { a: -128, len: 41 },
+];
+const cx = 50;
+const cy = 50;
+const tips = arms.map(({ a, len }) => {
+  const r = (a * Math.PI) / 180;
+  return { x: cx + Math.sin(r) * len, y: cy - Math.cos(r) * len };
 });
 ---
 
@@ -23,16 +36,15 @@ const nodes = Array.from({ length: 6 }, (_, i) => {
   viewBox="0 0 100 100"
   fill="none"
   role="img"
-  aria-label="613 Webring"
+  aria-label="Builders Collective Ottawa"
   xmlns="http://www.w3.org/2000/svg"
 >
-  <circle
-    cx="50"
-    cy="50"
-    r="38"
+  <g
     stroke="currentColor"
-    stroke-width="4"
-    opacity="0.35"></circle>
-  {nodes.map((n) => <circle cx={n.x} cy={n.y} r="8" fill="currentColor" />)}
-  <circle cx="50" cy="50" r="6" fill="currentColor" opacity="0.55"></circle>
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    {tips.map((t) => <line x1={cx} y1={cy} x2={t.x} y2={t.y} />)}
+  </g>
 </svg>

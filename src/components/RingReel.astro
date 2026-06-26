@@ -1,0 +1,164 @@
+---
+/**
+ * The Ring Reel — a pinned horizontal-scroll showcase. While the section is
+ * pinned, the track of member cards travels sideways as you scroll vertically
+ * (driven by the motion engine via [data-reel] / [data-reel-track]).
+ *
+ * Progressive enhancement: with motion off (reduced-motion / JS-off) or on
+ * narrow screens, the viewport is a native horizontal swipe strip
+ * (overflow-x:auto) — no pinning, fully usable.
+ *
+ * This is a *showcase* only; the searchable/filterable directory lives in
+ * MemberGrid below it and is left untouched.
+ */
+import MemberCard from "./MemberCard.astro";
+import { members, memberCount } from "../lib/members";
+---
+
+<section class="reel" data-reel aria-label="Featured builders in the ring">
+  <div class="container reel-head">
+    <p class="eyebrow">
+      <span class="dot" aria-hidden="true"></span> The reel
+    </p>
+    <h2 class="section-title" data-mask>Ride the ring sideways.</h2>
+    <p class="reel-hint label" aria-hidden="true">
+      Scroll ↓ &nbsp;·&nbsp; cards travel →
+    </p>
+  </div>
+
+  <div class="reel-viewport" data-reel-viewport>
+    <div class="reel-track" data-reel-track>
+      <div class="reel-intro" aria-hidden="true">
+        <span class="reel-count">{memberCount}</span>
+        <span class="reel-count-label">builders<br />in the loop</span>
+      </div>
+
+      {
+        members.map((m) => (
+          <div class="reel-item">
+            <MemberCard member={m} />
+          </div>
+        ))
+      }
+
+      <a class="reel-item reel-join card" href="/join">
+        <span class="reel-join-plus" aria-hidden="true">+</span>
+        <span class="reel-join-text">Add your<br />site →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .reel {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: clamp(3rem, 8vw, 6rem);
+    overflow: hidden;
+  }
+  .reel-head {
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .eyebrow .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--blue);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .reel-hint {
+    margin-top: 0.9rem;
+    color: var(--text-subtle);
+  }
+
+  .reel-viewport {
+    /* Fallback: native horizontal swipe. The motion engine swaps this to
+       `overflow:hidden` on desktop and drives x with a pinned ScrollTrigger. */
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .reel-viewport::-webkit-scrollbar {
+    display: none;
+  }
+  .reel-track {
+    display: flex;
+    align-items: stretch;
+    gap: 1.1rem;
+    width: max-content;
+    padding-inline: clamp(1.1rem, 4vw, 2.2rem);
+  }
+
+  .reel-item {
+    flex: 0 0 auto;
+    width: clamp(258px, 24vw, 320px);
+  }
+  .reel-item :global(.member-card) {
+    height: 100%;
+  }
+
+  .reel-intro {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: clamp(200px, 18vw, 260px);
+    padding-right: 0.5rem;
+  }
+  .reel-count {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3.5rem, 9vw, 6rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+  }
+  .reel-count-label {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .reel-join {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.25rem;
+    color: var(--text);
+    text-decoration: none;
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    transition:
+      transform 0.2s var(--ease),
+      border-color 0.2s var(--ease);
+  }
+  .reel-join:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-strong);
+    text-decoration: none;
+  }
+  .reel-join-plus {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 2.4rem;
+    line-height: 1;
+  }
+  .reel-join-text {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 900px) {
+    .reel {
+      min-height: auto;
+    }
+  }
+</style>

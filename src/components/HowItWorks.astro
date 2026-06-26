@@ -1,57 +1,52 @@
 ---
 import { REPO_URL } from "../consts";
+
+const steps = [
+  {
+    n: "01",
+    title: "Add your site",
+    body: "Open a pull request adding one entry to members.json. No build tools, no account — just your name and your URL.",
+  },
+  {
+    n: "02",
+    title: "Drop in the widget",
+    body: "Paste a tiny snippet into your footer. It renders the prev / 613 / next ring controls automatically.",
+  },
+  {
+    n: "03",
+    title: "You're in the loop",
+    body: "Visitors hop from your site to your neighbours' and back. More eyes on your work, more discovery for the 613.",
+  },
+];
 ---
 
-<section id="ring" class="section how">
+<section id="how" class="section how">
   <div class="container">
     <header class="how-head">
-      <p class="eyebrow">
-        <span class="dot" aria-hidden="true"></span> How the ring works
-      </p>
-      <h2 class="section-title">
-        A webring? In {new Date().getFullYear()}? Absolutely.
+      <p class="eyebrow" data-reveal="fade">Getting started</p>
+      <h2 class="section-title" data-reveal="fade">
+        One pull request. Then you're on the ring.
       </h2>
-      <p class="lead">
-        A webring is the old-internet way of connecting independent sites: each
-        one carries a little widget that points to the <strong>next</strong> and
-        <strong>previous</strong> site in the loop. Start anywhere, keep clicking,
-        and you'll tour every builder in the 613 — then land right back where you
-        began.
+      <p class="lead" data-reveal="fade">
+        Each site carries a small widget pointing to the next and previous builder
+        in the loop — the old-internet way of being discovered.
       </p>
     </header>
 
-    <ol class="how-steps">
-      <li class="how-step card">
-        <span class="how-num">1</span>
-        <h3>Add your site</h3>
-        <p>
-          Open a pull request adding one entry to <code>members.json</code>. No
-          build tools, no account — just your name and your URL.
-        </p>
-      </li>
-      <li class="how-step card">
-        <span class="how-num">2</span>
-        <h3>Drop in the widget</h3>
-        <p>
-          Paste a tiny snippet into your site's footer. It renders the
-          <span class="nav-demo" aria-hidden="true">
-            <span>←</span><span class="nav-demo-mid">613</span><span>→</span>
-          </span>
-          ring controls.
-        </p>
-      </li>
-      <li class="how-step card">
-        <span class="how-num">3</span>
-        <h3>You're in the loop</h3>
-        <p>
-          Visitors hop from your site to your neighbours' and back. More eyes on
-          your work, more discovery for everyone in Ottawa.
-        </p>
-      </li>
+    <ol class="how-steps" data-reveal-stagger>
+      {
+        steps.map((s) => (
+          <li class="how-step card">
+            <span class="how-num">{s.n}</span>
+            <h3>{s.title}</h3>
+            <p>{s.body}</p>
+          </li>
+        ))
+      }
     </ol>
 
-    <div class="how-cta">
-      <a class="btn btn-primary" href="/join">Get the widget &amp; join →</a>
+    <div class="how-cta" data-reveal>
+      <a class="btn btn-primary" href="/join">Get the widget &amp; join</a>
       <a class="btn" href={REPO_URL} target="_blank" rel="noopener noreferrer"
         >View the source</a
       >
@@ -61,15 +56,8 @@ import { REPO_URL } from "../consts";
 
 <style>
   .how-head {
-    max-width: 64ch;
-    margin-bottom: 2.4rem;
-  }
-  .eyebrow .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-soft);
+    max-width: 58ch;
+    margin-bottom: 2.5rem;
   }
   .how-steps {
     list-style: none;
@@ -77,60 +65,34 @@ import { REPO_URL } from "../consts";
     margin: 0;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.1rem;
+    gap: 1rem;
   }
   .how-step {
     padding: 1.5rem;
-    position: relative;
+    transition:
+      transform 0.2s var(--ease),
+      border-color 0.2s var(--ease);
+  }
+  .how-step:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
   }
   .how-num {
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: var(--accent-soft);
-    color: var(--accent);
+    display: block;
     font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1.1rem;
-    margin-bottom: 0.9rem;
+    font-size: 0.78rem;
+    color: var(--text-subtle);
+    margin-bottom: 1rem;
+    letter-spacing: 0.04em;
   }
   .how-step h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.4rem;
+    font-size: 1.15rem;
+    margin-bottom: 0.45rem;
   }
   .how-step p {
     color: var(--text-muted);
-    font-size: 0.95rem;
-  }
-  code {
-    font-family: var(--font-mono);
-    font-size: 0.85em;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.05em 0.4em;
-  }
-  .nav-demo {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    vertical-align: middle;
-    font-family: var(--font-mono);
-  }
-  .nav-demo span {
-    display: inline-grid;
-    place-items: center;
-    min-width: 1.5em;
-    height: 1.5em;
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    background: var(--surface);
-  }
-  .nav-demo-mid {
-    color: var(--accent);
-    font-weight: 700;
+    font-size: 0.94rem;
+    line-height: 1.6;
   }
   .how-cta {
     display: flex;

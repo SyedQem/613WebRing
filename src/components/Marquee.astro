@@ -1,0 +1,96 @@
+---
+interface Props {
+  items?: string[];
+}
+const {
+  items = ["Build", "Ship", "Repeat", "613", "Ottawa", "Carleton", "uOttawa"],
+} = Astro.props;
+// Two identical groups so the JS/CSS loop wraps seamlessly at -50%.
+const groups = [0, 1];
+---
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="marquee-track">
+    {
+      groups.map(() => (
+        <span class="marquee-group">
+          {items.map((it) => (
+            <span class="marquee-item">
+              {it}
+              <span class="marquee-sep">✳</span>
+            </span>
+          ))}
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    border-block: 1px solid var(--border);
+    padding-block: 1.4rem;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgba(255, 255, 255, 0.03),
+      transparent
+    );
+    white-space: nowrap;
+  }
+  .marquee-track {
+    display: inline-flex;
+    will-change: transform;
+    animation: marquee 28s linear infinite;
+  }
+  .marquee-group {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .marquee-item {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.4rem, 4vw, 2.6rem);
+    letter-spacing: -0.02em;
+    color: var(--text);
+    padding-inline: 1.4rem;
+  }
+  .marquee-sep {
+    margin-left: 2.8rem;
+    font-size: 0.7em;
+    color: var(--blue);
+    opacity: 0.8;
+  }
+</style>
+
+<script>
+  // Velocity-reactive marquee: constant drift, nudged (and reversed) by the
+  // Lenis scroll velocity for that premium feel. Falls back to the CSS
+  // animation when motion is off / reduced.
+  const track = document.getElementById("marquee-track");
+  type WithLenis = { lenis?: { velocity?: number } };
+  if (track && document.documentElement.classList.contains("motion")) {
+    track.style.animation = "none";
+    let x = 0;
+    let half = track.scrollWidth / 2;
+    const measure = () => (half = track.scrollWidth / 2);
+    window.addEventListener("resize", measure, { passive: true });
+    window.addEventListener("load", measure);
+
+    const base = 0.6; // px per frame baseline drift
+    const tick = () => {
+      const v = (window as unknown as WithLenis).lenis?.velocity ?? 0;
+      x -= base + v * 0.35;
+      if (half > 0) {
+        if (x <= -half) x += half;
+        else if (x > 0) x -= half;
+      }
+      track.style.transform = `translateX(${x}px)`;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+</script>

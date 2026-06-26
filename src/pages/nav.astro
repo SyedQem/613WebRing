@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import RingMark from "../components/RingMark.astro";
+import BcoLogo from "../components/BcoLogo.astro";
 import { members } from "../lib/members";
 
 // The ordered ring, inlined for the client redirect logic.
@@ -57,7 +57,7 @@ const navList = members.map((m) => ({ origin: m.origin, website: m.website }));
 
   <section class="nav-page">
     <div class="nav-card">
-      <span class="nav-mark"><RingMark size={48} /></span>
+      <BcoLogo size={48} class="nav-mark" />
 
       <div class="when-redirecting">
         <div class="spinner" aria-hidden="true"></div>
@@ -76,7 +76,7 @@ const navList = members.map((m) => ({ origin: m.origin, website: m.website }));
 
       <div class="nav-actions">
         <a class="btn btn-primary" href="/">Visit the 613 Webring</a>
-        <a class="btn" href="/nav?dir=random">Surprise me 🎲</a>
+        <a class="btn" href="/nav?dir=random">Surprise me</a>
         <a class="btn" href="/join">Join the ring</a>
       </div>
     </div>
@@ -95,9 +95,14 @@ const navList = members.map((m) => ({ origin: m.origin, website: m.website }));
     max-width: 32rem;
   }
   .nav-mark {
-    display: inline-flex;
-    color: var(--accent);
+    display: block;
+    margin-inline: auto;
     margin-bottom: 1rem;
+  }
+  .nav-mark :global(.bco-logo) {
+    width: 48px;
+    height: 48px;
+    margin-inline: auto;
   }
   .nav-card h1 {
     font-size: clamp(1.4rem, 4vw, 1.9rem);

@@ -1,7 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import EmbedSnippet from "../components/EmbedSnippet.astro";
-import OttawaSkyline from "../components/OttawaSkyline.astro";
 import { REPO_URL, REPO_EDIT_MEMBERS_URL, REPO_NEW_PR_URL } from "../consts";
 
 const entryExample = `{
@@ -46,7 +45,7 @@ const faqs = [
   },
   {
     q: "I'm a student / just starting out. Can I join?",
-    a: "Yes! Budding coders are exactly who this is for. A simple personal page or portfolio is perfect. Opening this pull request might even be your first ever — we'd be honoured.",
+    a: "Yes. A simple personal page or portfolio is perfect. Opening this pull request might even be your first ever — we'd be honoured.",
   },
   {
     q: "Does it cost anything?",
@@ -64,15 +63,10 @@ const faqs = [
   description="Add your personal site to the 613 Webring in one pull request. Open to every software engineer, designer and budding coder building in Ottawa."
 >
   <section class="join-hero">
-    <OttawaSkyline class="join-skyline" />
     <div class="container join-hero-inner">
-      <p class="eyebrow">
-        <span class="dot" aria-hidden="true"></span> Join the ring
-      </p>
-      <h1 class="join-title">
-        Add your site to the <span class="text-gradient">613</span>
-      </h1>
-      <p class="lead">
+      <p class="eyebrow">Join the ring</p>
+      <h1 class="join-title">Add your site to the 613</h1>
+      <p class="lead" data-reveal="fade">
         Three small steps and a single pull request. No build tools, no accounts
         — if you can edit a text file, you can join the ring.
       </p>
@@ -81,7 +75,7 @@ const faqs = [
 
   <div class="container join-body">
     <!-- Step 1 -->
-    <section class="step">
+    <section class="step" data-reveal>
       <div class="step-marker"><span>1</span></div>
       <div class="step-content">
         <h2>Add your entry to <code>members.json</code></h2>
@@ -116,13 +110,13 @@ const faqs = [
           target="_blank"
           rel="noopener noreferrer"
         >
-          Edit members.json on GitHub →
+          Edit members.json on GitHub
         </a>
       </div>
     </section>
 
     <!-- Step 2 -->
-    <section class="step">
+    <section class="step" data-reveal>
       <div class="step-marker"><span>2</span></div>
       <div class="step-content">
         <h2>Drop the widget on your site</h2>
@@ -136,14 +130,14 @@ const faqs = [
     </section>
 
     <!-- Step 3 -->
-    <section class="step">
+    <section class="step" data-reveal>
       <div class="step-marker"><span>3</span></div>
       <div class="step-content">
         <h2>Open your pull request</h2>
         <p>
           Commit your change and open a PR. A maintainer reviews it (automated
           checks make sure your entry is valid), and once merged you're live on
-          the ring. Welcome to the loop. 🌷
+          the ring.
         </p>
         <div class="step-cta">
           <a
@@ -152,7 +146,7 @@ const faqs = [
             target="_blank"
             rel="noopener noreferrer"
           >
-            Open a pull request →
+            Open a pull request
           </a>
           <a
             class="btn"
@@ -167,7 +161,7 @@ const faqs = [
     </section>
 
     <!-- FAQ -->
-    <section class="faq">
+    <section class="faq" data-reveal="fade">
       <h2 class="section-title">Questions</h2>
       <div class="faq-list">
         {
@@ -185,36 +179,15 @@ const faqs = [
 
 <style>
   .join-hero {
-    position: relative;
-    overflow: hidden;
-    padding-block: clamp(2.5rem, 7vw, 4.5rem) clamp(2rem, 5vw, 3rem);
+    padding-block: clamp(2.5rem, 7vw, 4rem) clamp(2rem, 5vw, 2.5rem);
     border-bottom: 1px solid var(--border);
   }
-  .join-skyline {
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 120px;
-    width: 100%;
-    color: var(--border-strong);
-    opacity: 0.3;
-    pointer-events: none;
-  }
-  .join-hero-inner {
-    position: relative;
-  }
-  .eyebrow .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-soft);
-  }
   .join-title {
-    margin: 0.8rem 0 1rem;
-    font-size: clamp(2.2rem, 7vw, 3.6rem);
+    margin: 0.6rem 0 1rem;
+    font-size: clamp(2rem, 6vw, 3.2rem);
   }
   .join-body {
-    max-width: 760px;
+    max-width: 720px;
     padding-block: clamp(2.5rem, 6vw, 4rem);
   }
   .step {
@@ -231,24 +204,24 @@ const faqs = [
     left: 23px;
     top: 56px;
     bottom: 1.5rem;
-    width: 2px;
-    background: linear-gradient(var(--border-strong), transparent);
+    width: 1px;
+    background: var(--border);
   }
   .step-marker span {
     display: grid;
     place-items: center;
     width: 48px;
     height: 48px;
-    border-radius: 16px;
-    background: var(--accent);
-    color: var(--accent-contrast);
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1.3rem;
-    box-shadow: var(--shadow-md);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.2rem;
   }
   .step-content h2 {
-    font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+    font-size: clamp(1.25rem, 3.2vw, 1.6rem);
     margin-bottom: 0.5rem;
   }
   .step-content > p {
@@ -266,14 +239,13 @@ const faqs = [
     font-size: 0.85rem;
     line-height: 1.7;
     color: var(--text);
-    box-shadow: var(--shadow-sm);
   }
   code {
     font-family: var(--font-mono);
     font-size: 0.88em;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 4px;
     padding: 0.05em 0.4em;
   }
   .code-card code {
@@ -299,8 +271,8 @@ const faqs = [
     background: none;
     border: none;
     padding: 0;
-    color: var(--accent);
-    font-weight: 700;
+    color: var(--text);
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -308,14 +280,14 @@ const faqs = [
   .req,
   .opt {
     font-size: 0.62rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     padding: 0.1em 0.5em;
     border-radius: 999px;
   }
   .req {
     background: var(--accent-soft);
-    color: var(--accent);
+    color: var(--text-muted);
   }
   .opt {
     background: var(--surface-2);
@@ -355,7 +327,7 @@ const faqs = [
     list-style-position: inside;
   }
   .faq-item summary:hover {
-    color: var(--accent);
+    color: var(--text-muted);
   }
   .faq-item p {
     color: var(--text-muted);

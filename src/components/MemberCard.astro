@@ -6,14 +6,14 @@ interface Props {
 }
 const { member } = Astro.props;
 
-// Deterministic monogram colour (Ottawa-flavoured palette) when no avatar.
+// Deterministic monogram shade (neutral greyscale steps) when no avatar.
 const palette = [
-  "#d92f2f",
-  "#1f6f8b",
-  "#3f8060",
-  "#e35d8a",
-  "#e0a83d",
-  "#7a5cc4",
+  "#1c1c1c",
+  "#2a2a2a",
+  "#383838",
+  "#4a4a4a",
+  "#5c5c5c",
+  "#707070",
 ];
 const hash = [...member.name].reduce((a, c) => a + c.charCodeAt(0), 0);
 const swatch = palette[hash % palette.length];
@@ -113,7 +113,7 @@ const initials = member.name
   .member-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-md);
-    border-color: var(--accent);
+    border-color: var(--border-strong);
     text-decoration: none;
   }
   .mc-head {
@@ -135,9 +135,9 @@ const initials = member.name
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 1.1rem;
-    color: #fff;
+    color: var(--text);
     background: var(--swatch);
-    border: none;
+    border: 1px solid var(--border);
   }
   .mc-id {
     display: flex;
@@ -179,7 +179,7 @@ const initials = member.name
     color: var(--text-muted);
   }
   .member-card:hover .mc-domain {
-    color: var(--accent);
+    color: var(--blue);
   }
   .mc-tags {
     display: inline-flex;
