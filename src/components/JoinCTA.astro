@@ -1,109 +1,88 @@
 ---
-import RingMark from "./RingMark.astro";
+import BcoLogo from "./BcoLogo.astro";
 ---
 
-<section class="joincta-wrap section">
+<section class="joincta-wrap section" id="join-cta" data-section-glow>
   <div class="container">
-    <div class="joincta grid-frame" data-reveal="fade">
-      <span class="joincta-watermark" aria-hidden="true">
-        <RingMark size={460} />
-      </span>
-
-      <div class="joincta-inner">
-        <p class="eyebrow">
-          <span class="dot" aria-hidden="true"></span> Join the ring
-        </p>
-        <h2 class="joincta-title">
-          Build in Ottawa? <span class="chrome-text">Join the ring.</span>
-        </h2>
-        <p class="joincta-lead">
-          Whether you're shipping at a startup, studying at uOttawa, Carleton or
-          Algonquin, or writing your very first lines of code — there's a node
-          on this ring for you. It takes one pull request.
-        </p>
-        <div class="joincta-actions">
-          <a class="btn btn-primary" href="/join">Add your site →</a>
-          <a class="btn joincta-ghost" href="/#members">See who's in</a>
-        </div>
+    <div class="joincta" data-reveal="fade">
+      <div class="joincta-watermark" aria-hidden="true">
+        <BcoLogo size={320} />
       </div>
 
-      <div class="joincta-foot">
-        <span class="label">Carleton University · Ottawa, ON</span>
-        <span class="label joincta-foot-end">Build · Ship · Repeat</span>
+      <div class="joincta-inner">
+        <p class="eyebrow">Join the ring</p>
+        <h2 class="joincta-title">Build in Ottawa? Add your site.</h2>
+        <p class="joincta-lead">
+          Whether you're at a startup, studying at uOttawa or Carleton, or
+          writing your first lines of code — there's a spot on this ring for you.
+          One pull request is all it takes.
+        </p>
+        <div class="joincta-actions">
+          <a class="btn btn-primary" href="/join">Add your site</a>
+          <a class="btn joincta-ghost" href="/#members">See who's in</a>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <style>
+  .joincta-wrap {
+    position: relative;
+    z-index: 1;
+  }
   .joincta {
     position: relative;
     overflow: hidden;
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-lg);
-    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 5vw, 4rem) 0;
+    padding: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 5vw, 3.5rem);
     background:
       radial-gradient(
-        120% 130% at 78% -10%,
-        rgba(255, 255, 255, 0.08),
+        120% 130% at 82% -10%,
+        rgba(255, 255, 255, 0.07),
         transparent 55%
       ),
-      linear-gradient(180deg, var(--surface-2), var(--bg));
+      linear-gradient(145deg, var(--surface-2), var(--surface) 55%, var(--bg));
     box-shadow: var(--shadow-lg);
   }
   .joincta-watermark {
     position: absolute;
     top: 50%;
-    right: -6%;
+    right: -2%;
     transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.04);
+    opacity: 0.06;
     pointer-events: none;
     line-height: 0;
+  }
+  .joincta-watermark :global(.bco-logo) {
+    width: min(320px, 40vw);
+    height: auto;
   }
   .joincta-inner {
     position: relative;
     max-width: 52ch;
   }
-  .eyebrow .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    background: var(--blue);
-    box-shadow: 0 0 0 4px var(--accent-soft);
-  }
   .joincta-title {
-    margin-top: 0.8rem;
-    font-size: clamp(2rem, 5.5vw, 3.4rem);
+    margin-top: 0.6rem;
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem);
     letter-spacing: -0.03em;
   }
   .joincta-lead {
     margin-top: 1rem;
     color: var(--text-muted);
-    font-size: clamp(1rem, 2.3vw, 1.18rem);
+    font-size: clamp(1rem, 2.2vw, 1.12rem);
+    line-height: 1.65;
   }
   .joincta-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 2rem;
+    margin-top: 1.8rem;
   }
   .joincta-ghost {
     --btn-bg: transparent;
     --btn-fg: var(--text);
     --btn-bd: var(--border-strong);
-  }
-  .joincta-foot {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: clamp(2.5rem, 6vw, 4rem);
-    padding-block: 1.2rem;
-    border-top: 1px solid var(--border);
-  }
-  @media (max-width: 520px) {
-    .joincta-foot-end {
-      display: none;
-    }
   }
 </style>

@@ -1,8 +1,6 @@
 ---
 import { members, memberCount } from "../lib/members";
 
-// Keep the visualisation readable: if the ring grows large, sample evenly so
-// the circle never gets crowded. Everyone still appears in the directory below.
 const MAX_NODES = 36;
 const shown =
   members.length <= MAX_NODES
@@ -22,12 +20,10 @@ const nodes = shown.map((m, i) => {
 });
 ---
 
-<section id="ring" class="section ring">
+<section id="ring" class="section ring" data-section-glow>
   <div class="container ring-grid">
     <div class="ring-copy">
-      <p class="eyebrow">
-        <span class="dot" aria-hidden="true"></span> The ring
-      </p>
+      <p class="eyebrow" data-reveal="fade">The ring</p>
       <h2 class="section-title" data-reveal="fade">
         {memberCount} sites, one continuous loop.
       </h2>
@@ -36,7 +32,7 @@ const nodes = shown.map((m, i) => {
         then jump in anywhere and ride the ring all the way around.
       </p>
       <div class="ring-cta" data-reveal>
-        <a class="btn" href="#members">Browse the directory →</a>
+        <a class="btn" href="#members">Browse the directory</a>
         <a class="btn btn-primary" href="/join">Add your node</a>
       </div>
     </div>
@@ -44,16 +40,6 @@ const nodes = shown.map((m, i) => {
     <div class="ring-viz-wrap" data-reveal="fade">
       <div class="ringviz" data-count={memberCount}>
         <svg viewBox="0 0 400 400" class="ringviz-svg" role="presentation">
-          <circle
-            class="spin-ring"
-            cx={cx}
-            cy={cy}
-            r="178"
-            fill="none"
-            stroke="var(--node-line)"
-            stroke-width="1.5"
-            stroke-dasharray="2 10"
-            aria-hidden="true"></circle>
           <circle
             cx={cx}
             cy={cy}
@@ -75,8 +61,8 @@ const nodes = shown.map((m, i) => {
                 data-role={n.role ?? ""}
                 aria-label={`${n.name} — ${n.domain}`}
               >
-                <circle class="node-halo" cx={n.x} cy={n.y} r="18" />
-                <circle class="node-dot" cx={n.x} cy={n.y} r="9" />
+                <circle class="node-halo" cx={n.x} cy={n.y} r="16" />
+                <circle class="node-dot" cx={n.x} cy={n.y} r="8" />
               </a>
             ))
           }
@@ -84,7 +70,7 @@ const nodes = shown.map((m, i) => {
 
         <div class="ringviz-center" aria-hidden="true">
           <div class="rc-default">
-            <span class="rc-count chrome-text">{memberCount}</span>
+            <span class="rc-count">{memberCount}</span>
             <span class="rc-label">sites in the ring</span>
             <span class="rc-hint">hover a node</span>
           </div>
@@ -102,50 +88,28 @@ const nodes = shown.map((m, i) => {
 <style>
   .ring-grid {
     display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: clamp(1.5rem, 5vw, 4rem);
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(1.5rem, 5vw, 3.5rem);
     align-items: center;
-  }
-  .eyebrow .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    background: var(--blue);
-    box-shadow: 0 0 0 4px var(--accent-soft);
   }
   .ring-cta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 2rem;
+    margin-top: 1.8rem;
   }
 
   .ringviz {
     position: relative;
     width: 100%;
-    max-width: 460px;
+    max-width: 440px;
     aspect-ratio: 1;
     margin-inline: auto;
-    filter: drop-shadow(0 24px 60px var(--ring-glow));
   }
   .ringviz-svg {
     width: 100%;
     height: 100%;
     overflow: visible;
-  }
-  .spin-ring {
-    transform-origin: 200px 200px;
-    animation: ringspin 60s linear infinite;
-  }
-  @keyframes ringspin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .spin-ring {
-      animation: none;
-    }
   }
 
   .node {
@@ -154,24 +118,24 @@ const nodes = shown.map((m, i) => {
   .node-dot {
     fill: var(--node);
     stroke: var(--bg);
-    stroke-width: 3;
+    stroke-width: 2.5;
     transition:
       r 0.2s var(--ease),
       fill 0.2s var(--ease);
   }
   .node-halo {
-    fill: var(--blue);
+    fill: var(--accent);
     opacity: 0;
     transition: opacity 0.2s var(--ease);
   }
   .node:hover .node-dot,
   .node:focus-visible .node-dot {
     fill: #fff;
-    r: 11;
+    r: 10;
   }
   .node:hover .node-halo,
   .node:focus-visible .node-halo {
-    opacity: 0.3;
+    opacity: 0.15;
   }
   .node:focus-visible {
     outline: none;
@@ -193,38 +157,35 @@ const nodes = shown.map((m, i) => {
     max-width: 56%;
   }
   .rc-count {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: clamp(2.4rem, 9vw, 3.4rem);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.2rem, 8vw, 3rem);
     line-height: 1;
+    letter-spacing: -0.03em;
   }
   .rc-label {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--text-muted);
-    margin-top: 0.4rem;
+    margin-top: 0.35rem;
   }
   .rc-hint {
-    margin-top: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    margin-top: 0.45rem;
+    font-size: 0.72rem;
     color: var(--text-subtle);
   }
   .rc-name {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: var(--text);
     line-height: 1.2;
   }
   .rc-domain {
     font-family: var(--font-mono);
     font-size: 0.82rem;
-    color: var(--blue);
+    color: var(--text-muted);
   }
   .rc-role {
     margin-top: 0.2rem;

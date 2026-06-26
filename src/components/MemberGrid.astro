@@ -16,9 +16,7 @@ const searchList = members.map((m) => ({
 <section id="members" class="section">
   <div class="container">
     <header class="md-head">
-      <p class="eyebrow">
-        <span class="dot" aria-hidden="true"></span> The directory
-      </p>
+      <p class="eyebrow">The directory</p>
       <h2 class="section-title" data-reveal="fade">
         {memberCount} builders in the 613
       </h2>
@@ -84,7 +82,7 @@ const searchList = members.map((m) => ({
       Showing all {memberCount} sites
     </p>
 
-    <div class="member-grid" id="member-grid">
+    <div class="member-grid" id="member-grid" data-reveal-stagger>
       {members.map((m) => <MemberCard member={m} />)}
     </div>
 
@@ -106,13 +104,6 @@ const searchList = members.map((m) => ({
   .md-head {
     max-width: 60ch;
     margin-bottom: 2rem;
-  }
-  .eyebrow .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    background: var(--blue);
-    box-shadow: 0 0 0 4px var(--accent-soft);
   }
   .md-controls {
     display: flex;

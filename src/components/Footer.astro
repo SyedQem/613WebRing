@@ -1,6 +1,5 @@
 ---
-import RingMark from "./RingMark.astro";
-import OttawaSkyline from "./OttawaSkyline.astro";
+import BcoLogo from "./BcoLogo.astro";
 import {
   SITE_NAME,
   SITE_TAGLINE,
@@ -12,11 +11,10 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
-  <OttawaSkyline class="footer-skyline" />
   <div class="container footer-inner">
     <div class="footer-brand">
       <a class="footer-mark" href="/" aria-label={`${SITE_NAME} — home`}>
-        <RingMark size={24} />
+        <BcoLogo size={32} />
         <span class="footer-wordmark"><span class="m">613</span>/WEBRING</span>
       </a>
       <p class="footer-tag">{SITE_TAGLINE}</p>
@@ -25,7 +23,6 @@ const year = new Date().getFullYear();
         <a href={BCO.url} target="_blank" rel="noopener noreferrer"
           >{BCO.name}</a
         >
-        — built in the <span class="m">613</span>.
       </p>
     </div>
 
@@ -52,28 +49,20 @@ const year = new Date().getFullYear();
   </div>
 
   <div class="container footer-bottom">
-    <span>© {year} {SITE_NAME} · Builders Collective Ottawa</span>
-    <span class="footer-area">Area code 613 · Ottawa, Ontario</span>
+    <span>© {year} {SITE_NAME}</span>
+    <span class="footer-area">Ottawa, Ontario · 613</span>
   </div>
 </footer>
 
 <style>
   .footer {
     position: relative;
-    margin-top: 2rem;
-    padding-top: 3.5rem;
+    z-index: 2;
+    isolation: isolate;
+    margin-top: clamp(4rem, 9vw, 7rem);
+    padding-top: clamp(3.5rem, 6vw, 5rem);
     background: var(--bg-subtle);
     border-top: 1px solid var(--border);
-    overflow: hidden;
-  }
-  .footer-skyline {
-    position: absolute;
-    inset: auto 0 0 0;
-    width: 100%;
-    height: 130px;
-    color: var(--text);
-    opacity: 0.05;
-    pointer-events: none;
   }
   .footer-inner {
     position: relative;
@@ -85,20 +74,21 @@ const year = new Date().getFullYear();
   .footer-mark {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.65rem;
     color: var(--text);
   }
-  .footer-mark :global(svg) {
-    color: var(--chrome-5);
+  .footer-mark :global(.bco-logo) {
+    width: 32px;
+    height: 32px;
   }
   .footer-mark:hover {
     text-decoration: none;
   }
   .footer-wordmark {
-    font-family: var(--font-mono);
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: 1.05rem;
-    letter-spacing: 0.04em;
+    letter-spacing: -0.01em;
   }
   .m {
     color: var(--text);
@@ -107,6 +97,7 @@ const year = new Date().getFullYear();
     margin-top: 0.8rem;
     color: var(--text-muted);
     max-width: 34ch;
+    font-size: 0.95rem;
   }
   .footer-bco {
     margin-top: 0.5rem;
@@ -117,7 +108,7 @@ const year = new Date().getFullYear();
     color: var(--text-muted);
   }
   .footer-bco a:hover {
-    color: var(--blue);
+    color: var(--text);
   }
   .footer-links {
     display: flex;
@@ -125,10 +116,9 @@ const year = new Date().getFullYear();
     gap: 0.5rem;
   }
   .footer-links-title {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     color: var(--text-subtle);
     margin-bottom: 0.2rem;
   }
@@ -137,7 +127,7 @@ const year = new Date().getFullYear();
     font-size: 0.95rem;
   }
   .footer-links a:hover {
-    color: var(--blue);
+    color: var(--text);
   }
   .footer-bottom {
     position: relative;
@@ -148,8 +138,7 @@ const year = new Date().getFullYear();
     padding-block: 1.4rem;
     border-top: 1px solid var(--border);
     color: var(--text-subtle);
-    font-size: 0.82rem;
-    font-family: var(--font-mono);
+    font-size: 0.85rem;
   }
   @media (max-width: 720px) {
     .footer-inner {

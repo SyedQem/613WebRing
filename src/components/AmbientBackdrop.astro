@@ -1,0 +1,118 @@
+---
+/**
+ * Ambient backdrop — drifting gradient orbs and a fine film grain layered over
+ * the ASCII field. Transparent base (the page colour comes from <body>), so the
+ * digits behind it stay visible. Purely decorative.
+ */
+---
+
+<div class="ambient" aria-hidden="true">
+  <div class="ambient-orb ambient-orb-1"></div>
+  <div class="ambient-orb ambient-orb-2"></div>
+  <div class="ambient-orb ambient-orb-3"></div>
+  <div class="ambient-vignette"></div>
+  <div class="ambient-grain"></div>
+</div>
+
+<style>
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .ambient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    will-change: transform;
+  }
+  .ambient-orb-1 {
+    top: -16%;
+    right: -8%;
+    width: 46vw;
+    height: 46vw;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.07),
+      transparent 70%
+    );
+    animation: orb-drift-a 26s ease-in-out infinite;
+  }
+  .ambient-orb-2 {
+    bottom: -20%;
+    left: -12%;
+    width: 52vw;
+    height: 52vw;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.05),
+      transparent 70%
+    );
+    animation: orb-drift-b 32s ease-in-out infinite;
+  }
+  .ambient-orb-3 {
+    top: 38%;
+    left: 44%;
+    width: 30vw;
+    height: 30vw;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.035),
+      transparent 72%
+    );
+    animation: orb-drift-c 38s ease-in-out infinite;
+  }
+  .ambient-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      120% 100% at 50% 0%,
+      transparent 55%,
+      rgba(0, 0, 0, 0.45) 100%
+    );
+  }
+  .ambient-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.22;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    mix-blend-mode: overlay;
+  }
+
+  @keyframes orb-drift-a {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-4vw, 5vh);
+    }
+  }
+  @keyframes orb-drift-b {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(5vw, -4vh);
+    }
+  }
+  @keyframes orb-drift-c {
+    0%,
+    100% {
+      transform: translate(-50%, 0);
+    }
+    50% {
+      transform: translate(-46%, 6vh);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-orb {
+      animation: none;
+    }
+  }
+</style>

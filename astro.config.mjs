@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
+import react from "@astrojs/react";
 
 import { SITE_URL } from "./src/consts.ts";
 
@@ -10,6 +11,6 @@ export default defineConfig({
   // domain is decided — every widget snippet and canonical link reads from it.
   site: SITE_URL,
   output: "static",
-  integrations: [sitemap()],
+  integrations: [react(), sitemap()],
   trailingSlash: "ignore",
 });

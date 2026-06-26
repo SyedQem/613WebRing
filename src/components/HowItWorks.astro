@@ -23,16 +23,13 @@ const steps = [
 <section id="how" class="section how">
   <div class="container">
     <header class="how-head">
-      <p class="eyebrow">
-        <span class="dot" aria-hidden="true"></span> Join in three steps
-      </p>
+      <p class="eyebrow" data-reveal="fade">Getting started</p>
       <h2 class="section-title" data-reveal="fade">
         One pull request. Then you're on the ring.
       </h2>
       <p class="lead" data-reveal="fade">
-        It's the old-internet way of being discovered — no algorithm, no feed.
-        Each site carries a small widget pointing to the next and previous
-        builder in the loop.
+        Each site carries a small widget pointing to the next and previous builder
+        in the loop — the old-internet way of being discovered.
       </p>
     </header>
 
@@ -49,7 +46,7 @@ const steps = [
     </ol>
 
     <div class="how-cta" data-reveal>
-      <a class="btn btn-primary" href="/join">Get the widget &amp; join →</a>
+      <a class="btn btn-primary" href="/join">Get the widget &amp; join</a>
       <a class="btn" href={REPO_URL} target="_blank" rel="noopener noreferrer"
         >View the source</a
       >
@@ -59,15 +56,8 @@ const steps = [
 
 <style>
   .how-head {
-    max-width: 60ch;
-    margin-bottom: 2.8rem;
-  }
-  .eyebrow .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    background: var(--blue);
-    box-shadow: 0 0 0 4px var(--accent-soft);
+    max-width: 58ch;
+    margin-bottom: 2.5rem;
   }
   .how-steps {
     list-style: none;
@@ -78,57 +68,37 @@ const steps = [
     gap: 1rem;
   }
   .how-step {
-    padding: 1.6rem;
-    position: relative;
-    overflow: hidden;
+    padding: 1.5rem;
     transition:
-      transform 0.25s var(--ease),
-      border-color 0.25s var(--ease),
-      box-shadow 0.25s var(--ease);
-  }
-  .how-step::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      120% 80% at 0% 0%,
-      rgba(255, 255, 255, 0.06),
-      transparent 55%
-    );
-    opacity: 0;
-    transition: opacity 0.25s var(--ease);
-    pointer-events: none;
+      transform 0.2s var(--ease),
+      border-color 0.2s var(--ease);
   }
   .how-step:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     border-color: var(--border-strong);
-    box-shadow: var(--shadow-md);
-  }
-  .how-step:hover::before {
-    opacity: 1;
   }
   .how-num {
     display: block;
     font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1.6rem;
+    font-size: 0.78rem;
     color: var(--text-subtle);
-    margin-bottom: 1.1rem;
-    letter-spacing: 0.02em;
+    margin-bottom: 1rem;
+    letter-spacing: 0.04em;
   }
   .how-step h3 {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.15rem;
+    margin-bottom: 0.45rem;
   }
   .how-step p {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 0.94rem;
+    line-height: 1.6;
   }
   .how-cta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 2.2rem;
+    margin-top: 2rem;
   }
   @media (max-width: 760px) {
     .how-steps {

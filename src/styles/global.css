@@ -1,91 +1,62 @@
 /* =========================================================================
-   613 Webring — Builders Collective Ottawa design system
-   -------------------------------------------------------------------------
-   One dark, chrome-accented brand. Every colour and type decision is a CSS
-   custom property, so the BCO palette can be tuned by editing the BRAND
-   TOKENS block alone. The aesthetic: pure black-and-white — near-black
-   canvas, bright chrome/white accents, a falling matrix-rain backdrop,
-   editorial hairline grid, mono technical labels and huge bold display type.
+   613 Webring — design system
+   Dark, restrained, community-first. Tokens live in :root so the palette
+   can be tuned in one place.
    ========================================================================= */
 
 /* ---- BRAND TOKENS ------------------------------------------------------- */
 :root {
-  /* Chrome — used for the mark, wordmark accents and metallic surfaces.
-     Pure neutral greys: no colour cast. */
   --chrome-1: #ffffff;
   --chrome-2: #e6e6e6;
   --chrome-3: #ababab;
   --chrome-4: #7d7d7d;
   --chrome-5: #f2f2f2;
-  --chrome: linear-gradient(
-    160deg,
-    var(--chrome-1) 0%,
-    var(--chrome-2) 26%,
-    var(--chrome-3) 52%,
-    var(--chrome-5) 74%,
-    var(--chrome-2) 100%
-  );
 
-  /* Monochrome signal — the accent + glow are now pure white. The token is
-     still named --blue so existing references stay valid; nothing renders blue. */
   --blue: #ffffff;
   --blue-deep: #999999;
-  --glow: rgba(255, 255, 255, 0.22);
-
-  /* Legacy palette names kept as on-brand aliases so no stray reference
-     ever renders in a colour — all neutral now. */
-  --bco-red: #d6d6d6;
-  --bco-red-deep: #ababab;
-  --canal-blue: #ffffff;
-  --canal-blue-deep: #999999;
-  --tulip-pink: #c4c4c4;
-  --parliament-copper: #cfcfcf;
-  --gold: #d8d8d8;
+  --glow: rgba(255, 255, 255, 0.16);
 }
 
-/* ---- SEMANTIC TOKENS (single dark theme) -------------------------------- */
+/* ---- SEMANTIC TOKENS ---------------------------------------------------- */
 :root {
-  --bg: #050505;
-  --bg-subtle: #0b0b0b;
-  --surface: #0d0d0d;
-  --surface-2: #131313;
-  --surface-3: #1a1a1a;
+  --bg: #080808;
+  --bg-subtle: #0c0c0c;
+  --surface: #111111;
+  --surface-2: #161616;
+  --surface-3: #1c1c1c;
 
-  --text: #f5f5f5;
-  --text-muted: #a0a0a0;
-  --text-subtle: #6a6a6a;
+  --text: #f0f0f0;
+  --text-muted: #9a9a9a;
+  --text-subtle: #666666;
 
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.14);
 
-  --accent: #d6d6d6; /* steel — restrained interactive accent */
+  --accent: #e8e8e8;
   --accent-hover: #ffffff;
-  --accent-contrast: #050505;
-  --accent-soft: rgba(255, 255, 255, 0.1);
+  --accent-contrast: #080808;
+  --accent-soft: rgba(255, 255, 255, 0.08);
 
-  --link: #ffffff;
-  --ring-glow: rgba(255, 255, 255, 0.16);
-  --node: #d6d6d6;
-  --node-line: rgba(255, 255, 255, 0.16);
+  --link: #f0f0f0;
+  --ring-glow: rgba(255, 255, 255, 0.1);
+  --node: #c8c8c8;
+  --node-line: rgba(255, 255, 255, 0.12);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 10px 34px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 28px 70px rgba(0, 0, 0, 0.65);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 56px rgba(0, 0, 0, 0.55);
 
-  /* layout */
-  --maxw: 1180px;
-  --radius-sm: 8px;
-  --radius: 14px;
-  --radius-lg: 22px;
+  --maxw: 1120px;
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 18px;
   --space: clamp(1rem, 2.5vw, 1.6rem);
 
-  /* type */
   --font-sans:
     "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     sans-serif;
   --font-display: "Space Grotesk", "Inter", var(--font-sans);
-  --font-mono:
-    "Space Mono", ui-monospace, "JetBrains Mono", "Courier New", monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   color-scheme: dark;
@@ -104,8 +75,6 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: 5.5rem;
 }
-/* Native smooth-scroll is only used as a fallback; Lenis drives it when the
-   `.motion` class is present (set by JS only when motion is allowed). */
 html:not(.motion) {
   scroll-behavior: smooth;
 }
@@ -127,38 +96,9 @@ body {
   min-height: 100vh;
   font-family: var(--font-sans);
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--text);
   background-color: var(--bg);
-  background-image:
-    radial-gradient(
-      1100px 620px at 78% -8%,
-      rgba(255, 255, 255, 0.06),
-      transparent 60%
-    ),
-    radial-gradient(
-      820px 520px at -8% 12%,
-      rgba(255, 255, 255, 0.04),
-      transparent 55%
-    ),
-    linear-gradient(
-      transparent 0,
-      transparent calc(100% - 1px),
-      var(--grid-c) 0
-    ),
-    linear-gradient(
-      90deg,
-      transparent 0,
-      transparent calc(100% - 1px),
-      var(--grid-c) 0
-    );
-  --grid-c: rgba(255, 255, 255, 0.025);
-  background-size:
-    100% 100%,
-    100% 100%,
-    100% 88px,
-    88px 100%;
-  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -187,20 +127,20 @@ h3,
 h4 {
   font-family: var(--font-display);
   font-weight: 600;
-  line-height: 1.05;
+  line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--text);
 }
 
 :focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
 ::selection {
-  background: var(--blue);
-  color: #050505;
+  background: var(--accent);
+  color: var(--accent-contrast);
 }
 
 /* ---- LAYOUT HELPERS ----------------------------------------------------- */
@@ -208,107 +148,61 @@ h4 {
   width: 100%;
   max-width: var(--maxw);
   margin-inline: auto;
-  padding-inline: clamp(1.1rem, 4vw, 2.2rem);
+  padding-inline: clamp(1.1rem, 4vw, 2rem);
 }
 
 .section {
-  padding-block: clamp(4rem, 10vw, 8rem);
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
   position: relative;
 }
 
-/* Mono technical label — "BUILDERS COLLECTIVE // OTTAWA", "VOL. 01" etc. */
+/* Page content sits above the fixed ASCII / ambient layers. */
+#main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Soft per-section spotlight, painted behind the section's own content. */
+[data-section-glow] {
+  position: relative;
+}
+[data-section-glow]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    62% 52% at 50% 28%,
+    rgba(255, 255, 255, 0.05),
+    transparent 70%
+  );
+}
+
 .label,
 .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.18em;
+  display: inline-block;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-subtle);
-  font-weight: 400;
+  font-weight: 500;
 }
 .eyebrow {
   color: var(--text-muted);
-  font-weight: 700;
-}
-.eyebrow .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: var(--blue);
-  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .section-title {
-  font-size: clamp(1.9rem, 5vw, 3.1rem);
-  margin-top: 0.7rem;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.75rem, 4vw, 2.6rem);
+  margin-top: 0.6rem;
+  letter-spacing: -0.025em;
 }
 
 .lead {
   color: var(--text-muted);
-  font-size: clamp(1rem, 2.2vw, 1.2rem);
-  max-width: 60ch;
-}
-
-/* Liquid-chrome gradient clipped to text — for wordmark accents.
-   NOTE: no text-shadow here. A blurred text-shadow is NOT clipped by an
-   ancestor's overflow:hidden, so it used to bleed well past the hero /
-   manifesto frames. The clipped metallic gradient reads cleanly on its own;
-   any "glow" must be a contained, overflow-clipped layer (see .chrome-glow). */
-.chrome-text {
-  background: linear-gradient(
-    178deg,
-    #ffffff 0%,
-    #f2f2f2 30%,
-    #a6a6a6 54%,
-    #ffffff 70%,
-    #cccccc 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.text-gradient {
-  /* kept for backwards-compat: now a chrome wash */
-  background: linear-gradient(178deg, #ffffff, #ababab 60%, #f2f2f2);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Editorial corner ticks for the hero/section frames. */
-.grid-frame {
-  position: relative;
-}
-.grid-frame::before,
-.grid-frame::after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 1px solid var(--border-strong);
-  pointer-events: none;
-}
-.grid-frame::before {
-  top: 0;
-  left: 0;
-  border-right: 0;
-  border-bottom: 0;
-}
-.grid-frame::after {
-  bottom: 0;
-  right: 0;
-  border-left: 0;
-  border-top: 0;
-}
-
-/* A faint full-bleed hairline divider. */
-.rule {
-  border: 0;
-  border-top: 1px solid var(--border);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  max-width: 58ch;
+  line-height: 1.65;
 }
 
 /* ---- BUTTONS ------------------------------------------------------------ */
@@ -319,50 +213,47 @@ h4 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.4rem;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  gap: 0.4rem;
+  padding: 0.72rem 1.25rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.92rem;
   line-height: 1;
   color: var(--btn-fg);
   background: var(--btn-bg);
   border: 1px solid var(--btn-bd);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   text-decoration: none;
   transition:
-    transform 0.2s var(--ease),
-    box-shadow 0.2s var(--ease),
-    background-color 0.2s var(--ease),
-    border-color 0.2s var(--ease),
-    color 0.2s var(--ease);
+    transform 0.18s var(--ease),
+    box-shadow 0.18s var(--ease),
+    background-color 0.18s var(--ease),
+    border-color 0.18s var(--ease),
+    color 0.18s var(--ease);
 }
 .btn:hover {
-  transform: translateY(-2px);
-  border-color: var(--text);
+  transform: translateY(-1px);
+  border-color: var(--text-muted);
   text-decoration: none;
 }
 .btn:active {
   transform: translateY(0);
 }
 .btn-primary {
-  --btn-bg: #f5f5f5;
-  --btn-fg: #050505;
-  --btn-bd: #f5f5f5;
-  box-shadow: 0 0 0 0 var(--glow);
+  --btn-bg: var(--text);
+  --btn-fg: var(--accent-contrast);
+  --btn-bd: var(--text);
 }
 .btn-primary:hover {
   --btn-bg: #ffffff;
   --btn-bd: #ffffff;
-  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.18);
+  box-shadow: 0 6px 24px rgba(255, 255, 255, 0.12);
 }
 
 /* ---- CARDS & TAGS ------------------------------------------------------- */
 .card {
-  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -371,50 +262,251 @@ h4 {
 .tag {
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
   color: var(--text-muted);
-  background: var(--surface-3);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 0.2rem 0.6rem;
+  padding: 0.18rem 0.55rem;
 }
 
-/* ---- MARQUEE ------------------------------------------------------------ */
-@keyframes marquee {
-  to {
-    transform: translateX(-50%);
-  }
+.rule {
+  border: 0;
+  border-top: 1px solid var(--border);
 }
 
-/* ---- SCROLL-REVEAL BASE STATES -----------------------------------------
-   These hide content ONLY when the `.motion` class is present on <html>,
-   which JS adds (before paint) solely when motion is allowed. With JS off
-   or reduced-motion, the class is absent and everything renders visible. */
+/* ---- SCROLL-REVEAL ------------------------------------------------------ */
 html.motion [data-reveal],
 html.motion [data-reveal-stagger] > * {
   opacity: 0;
-  transform: translateY(48px);
-  will-change: opacity, transform;
+  transform: translateY(26px);
+  filter: blur(6px);
+  will-change: opacity, transform, filter;
 }
 html.motion [data-reveal="fade"] {
   transform: none;
 }
-/* Clip-path wipe entrance — bottom-clipped to nothing, then wiped open from
-   the top. Self-contained to the element's box, so it never bleeds its frame. */
-html.motion [data-mask] {
-  opacity: 0;
-  transform: translateY(28px);
-  clip-path: inset(0% 0% 100% 0%);
-  will-change: opacity, transform, clip-path;
+
+/* ---- ASCII CANVAS LAYERS ------------------------------------------------ */
+.ascii-field {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0.9;
 }
-/* Kinetic manifesto words: dim, lifted ghosts that brighten + rise on scrub. */
-html.motion [data-manifesto] .m-word {
-  opacity: 0.1;
-  transform: translateY(0.25em);
+.ascii-hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 460px;
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+.ascii-hero-canvas {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+.ascii-hero-glow {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.04) 45%,
+    transparent 70%
+  );
+  filter: blur(26px);
+  z-index: 0;
+}
+
+/* ---- BOOT LOADER -------------------------------------------------------- */
+html.booting,
+html.booting body {
+  overflow: hidden;
+}
+#boot-cover {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: var(--bg);
+  display: none;
+}
+html.booting #boot-cover {
+  display: block;
+}
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  display: block;
+  cursor: pointer;
+  overflow: hidden;
+}
+.boot-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.boot-meta {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  width: min(92vw, 520px);
+  padding: 1.3rem 1.6rem;
+  background: radial-gradient(
+    120% 130% at 50% 50%,
+    rgba(8, 8, 8, 0.55),
+    transparent 72%
+  );
+}
+.boot-title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  font-size: clamp(1.1rem, 3.4vw, 1.55rem);
+  color: var(--text);
+}
+.boot-sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+.boot-bar {
+  margin-top: 0.7rem;
+  width: min(240px, 60vw);
+  height: 2px;
+  background: var(--border-strong);
+  overflow: hidden;
+}
+.boot-bar-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--text);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.boot-hint {
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+/* ---- MANIFESTO SCENE ---------------------------------------------------- */
+.manifesto {
+  position: relative;
+}
+.manifesto-sticky {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.manifesto-grid {
+  display: grid;
+  grid-template-columns: 0.82fr 1.18fr;
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+  width: 100%;
+}
+.manifesto-visual {
+  display: grid;
+  place-items: center;
+}
+.manifesto-ring {
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1;
+}
+.manifesto-copy {
+  max-width: 32ch;
+}
+.manifesto-statement {
+  margin-top: 1.2rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.55rem, 3.4vw, 2.5rem);
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+.m-line {
+  display: block;
+}
+.m-line + .m-line {
+  margin-top: 0.66em;
+}
+.m-word {
   display: inline-block;
-  will-change: opacity, transform;
+  margin-right: 0.26em;
+}
+.m-word-hl {
+  background: linear-gradient(180deg, #ffffff 0%, #c9c9c9 58%, #ffffff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.manifesto-widget {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.manifesto-widget span {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--text);
+}
+@media (min-width: 901px) {
+  .manifesto {
+    height: 220vh;
+  }
+  .manifesto-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+}
+@media (max-width: 900px) {
+  .manifesto-sticky {
+    padding-block: clamp(4rem, 12vw, 7rem);
+  }
+  .manifesto-grid {
+    grid-template-columns: 1fr;
+  }
+  .manifesto-visual {
+    order: -1;
+    max-width: 220px;
+    margin-inline: auto;
+  }
+  .manifesto-copy {
+    max-width: none;
+  }
 }
 
 /* ---- ACCESSIBILITY ------------------------------------------------------ */
@@ -435,12 +527,11 @@ html.motion [data-manifesto] .m-word {
   top: -100px;
   left: 1rem;
   z-index: 200;
-  background: var(--blue);
-  color: #050505;
+  background: var(--accent);
+  color: var(--accent-contrast);
   padding: 0.6rem 1rem;
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  font-weight: 700;
-  font-family: var(--font-mono);
+  font-weight: 600;
   transition: top 0.2s var(--ease);
 }
 .skip-link:focus {

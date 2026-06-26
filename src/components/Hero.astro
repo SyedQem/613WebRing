@@ -1,131 +1,95 @@
 ---
-import AsteriskChrome from "./AsteriskChrome.astro";
+import AsciiHero from "./motion/AsciiHero.tsx";
 import { memberCount } from "../lib/members";
 import { BCO } from "../consts";
-const year = new Date().getFullYear();
 ---
 
 <section class="hero">
   <div class="container">
-    <!-- editorial header rule -->
-    <div class="hero-rule">
-      <span class="label">{BCO.name} // Ottawa</span>
-      <span class="label hero-rule-end">Vol. 01 // Est. {year}</span>
-    </div>
-
     <div class="hero-grid">
       <div class="hero-copy">
-        <p class="hero-kicker label">
-          <span class="dot" aria-hidden="true"></span>
-          The 613 Webring
+        <p class="hero-kicker">
+          Presented by <a href={BCO.url} target="_blank" rel="noopener noreferrer"
+            >{BCO.name}</a
+          >
         </p>
 
-        <h1 class="hero-title" data-skew>
-          <span class="hl-line" data-mask>Ottawa's builders,</span>
-          <span class="hl-line" data-mask
-            >linked in a <span class="chrome-text">ring.</span></span
-          >
+        <h1 class="hero-title" data-reveal>
+          Ottawa's builders,<br />linked in a ring.
         </h1>
 
         <p class="hero-lead lead" data-reveal>
-          A ring of personal sites from the engineers, designers and budding
-          coders shipping out of the 613. Hop from one to the next — or add your
-          own and join the loop.
+          A loop of personal sites from engineers, designers, and coders in the
+          613. Hop from one to the next — or add yours with a pull request.
         </p>
 
         <div class="hero-cta" data-reveal>
-          <a class="btn btn-primary" href="/join">Join the ring →</a>
+          <a class="btn btn-primary" href="/join">Join the ring</a>
           <a class="btn" href="#members">Browse members</a>
         </div>
 
         <dl class="hero-stats" data-reveal-stagger>
           <div class="stat">
             <dt>In the ring</dt>
-            <dd><span class="num">{memberCount}</span> sites</dd>
+            <dd>{memberCount} sites</dd>
           </div>
           <div class="stat">
-            <dt>Open to</dt>
-            <dd>all of the <span class="num">613</span></dd>
+            <dt>Area code</dt>
+            <dd>613</dd>
           </div>
           <div class="stat">
-            <dt>Grows by</dt>
-            <dd>1 pull request</dd>
+            <dt>To join</dt>
+            <dd>One pull request</dd>
           </div>
         </dl>
       </div>
 
-      <div class="hero-viz">
-        <AsteriskChrome parallax={0.4} />
+      <div class="hero-mark" data-parallax="0.12">
+        <AsciiHero client:load />
       </div>
     </div>
   </div>
-
-  <a class="hero-scroll" href="#manifesto" aria-label="Scroll to learn more">
-    <span class="label">Scroll</span>
-    <span class="hero-scroll-line" aria-hidden="true"></span>
-  </a>
 </section>
 
 <style>
   .hero {
     position: relative;
-    min-height: 100svh;
+    min-height: calc(100svh - 4.4rem);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-top: 5rem;
-    padding-bottom: 4rem;
-    overflow: hidden;
+    padding-block: clamp(3rem, 8vw, 5rem);
   }
-  .hero-rule {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    margin-bottom: clamp(1.5rem, 5vw, 3.5rem);
-    border-bottom: 1px solid var(--border);
-  }
-  .hero-rule-end {
-    color: var(--text-subtle);
-  }
-  @media (max-width: 560px) {
-    .hero-rule-end {
-      display: none;
-    }
-  }
-
   .hero-grid {
     display: grid;
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: clamp(1.5rem, 4vw, 3.5rem);
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 5vw, 4rem);
     align-items: center;
   }
   .hero-kicker {
+    font-size: 0.92rem;
     color: var(--text-muted);
   }
-  .hero-kicker .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    background: var(--blue);
-    box-shadow: 0 0 0 4px var(--accent-soft);
+  .hero-kicker a {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--border-strong);
   }
-
+  .hero-kicker a:hover {
+    text-decoration-color: var(--text);
+  }
   .hero-title {
     margin-top: 1rem;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(2.6rem, 7.5vw, 5.4rem);
-    line-height: 0.98;
-    letter-spacing: -0.04em;
-  }
-  .hl-line {
-    display: block;
+    font-size: clamp(2.5rem, 6.5vw, 4.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
   }
   .hero-lead {
-    margin-top: 1.5rem;
-    font-size: clamp(1.05rem, 2.4vw, 1.25rem);
-    max-width: 46ch;
+    margin-top: 1.4rem;
+    max-width: 44ch;
   }
   .hero-cta {
     display: flex;
@@ -136,80 +100,40 @@ const year = new Date().getFullYear();
   .hero-stats {
     display: flex;
     flex-wrap: wrap;
-    gap: 2.4rem;
-    margin-top: 2.6rem;
-    padding-top: 1.6rem;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
     border-top: 1px solid var(--border);
   }
   .stat dt {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text-subtle);
   }
   .stat dd {
-    margin-top: 0.35rem;
+    margin-top: 0.3rem;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 1.15rem;
-    color: var(--text);
-  }
-  .stat .num {
-    font-family: var(--font-mono);
+    font-size: 1.1rem;
     color: var(--text);
   }
 
-  .hero-scroll {
-    position: absolute;
-    left: 50%;
-    bottom: 1.5rem;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-subtle);
-  }
-  .hero-scroll:hover {
-    color: var(--text);
-    text-decoration: none;
-  }
-  .hero-scroll-line {
-    width: 1px;
-    height: 38px;
-    background: linear-gradient(var(--text-subtle), transparent);
-    animation: scroll-pulse 2.2s var(--ease) infinite;
-    transform-origin: top;
-  }
-  @keyframes scroll-pulse {
-    0%,
-    100% {
-      transform: scaleY(0.4);
-      opacity: 0.4;
-    }
-    50% {
-      transform: scaleY(1);
-      opacity: 1;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-scroll-line {
-      animation: none;
-    }
+  .hero-mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    max-width: 460px;
+    margin-inline: auto;
   }
 
   @media (max-width: 900px) {
     .hero-grid {
       grid-template-columns: 1fr;
     }
-    .hero-viz {
+    .hero-mark {
       order: -1;
-      max-width: 360px;
-      margin-inline: auto;
-    }
-    .hero-scroll {
-      display: none;
+      max-width: 240px;
     }
   }
 </style>
