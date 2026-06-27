@@ -32,6 +32,14 @@
     "blurb": "👋 Sample entry — everyone building in the 613 is welcome here."
   },
   {
+    "name": "Shri Vempati",
+    "website": "https://shvempat.vercel.app/",
+    "role": "Robotics Engineering",
+    "location": "Ottawa, ON",
+    "tags": ["robotics", "infra", "network", "platform", "ai"],
+    "blurb": "robotics & systems engineering"
+  },
+  {
     "name": "Qurb E Muhammad Syed",
     "website": "https://kirbydoestech.dev",
     "role": "Backend & systems · Carleton University",
