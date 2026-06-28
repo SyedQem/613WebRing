@@ -46,5 +46,13 @@
     "location": "Ottawa, ON",
     "tags": ["backend", "systems", "java", "c++"],
     "blurb": "Software engineering student building clean, performance-minded backend systems in the 613."
+  },
+  {
+    "name": "Waaberi Ibrahim",
+    "website": "https://waaberi.dev",
+    "role": "Software Engineering Student · uOttawa",
+    "location": "Ottawa, ON",
+    "tags": ["full-stack", "ai", "cybersecurity"],
+    "blurb": "Software Engineering student working primarily in full-stack web development, AI, and cybersecurity."
   }
 ]
