@@ -62,5 +62,13 @@
     "location": "Ottawa, ON",
     "tags": ["ai", "full-stack", "ml-systems"],
     "blurb": "Building software for hard problems"
+  },
+  {
+    "name": "Saoussen Slii",
+    "website": "https://saoussen-slii.vercel.app/",
+    "role": "Software Developer",
+    "location": "Ottawa, ON",
+    "tags": ["fullstack", "ai", "typescript", "react", "nodejs", "postgres", "java", "Domain Driven Design", "Event-Driven Architecture"],
+    "blurb": "Bilingual software developer with a passion for building scalable and efficient systems."
   }
 ]
