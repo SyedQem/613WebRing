@@ -54,5 +54,13 @@
     "location": "Ottawa, ON",
     "tags": ["full-stack", "ai", "cybersecurity"],
     "blurb": "Software Engineering student working primarily in full-stack web development, AI, and cybersecurity."
+  },
+  {
+    "name": "Zahin Mohammad",
+    "website": "https://zahin.org",
+    "role": "CTO & Co-founder",
+    "location": "Ottawa, ON",
+    "tags": ["ai", "full-stack", "ml-systems"],
+    "blurb": "Building software for hard problems"
   }
 ]
