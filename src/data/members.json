@@ -51,5 +51,14 @@
     "tags": ["fullstack", "ai", "typescript", "react", "nodejs", "postgres", "java", "ddd", "event-driven"],
     "blurb": "Bilingual software developer with a passion for building scalable and efficient systems.",
     "links": ["https://builderscollective.ca"]
+  },
+  {
+    "name": "Salim Dellali",
+    "website": "https://salimdellali.com",
+    "role": "Software x Applied AI Engineer",
+    "location": "Ottawa, ON",
+    "tags": ["full-stack", "ai", "applied-ai", "typescript", "react.js", "node.js", "postgresql", "sdd", "claude-code", "pizza"],
+    "blurb": "Chasing 16 sunrises over nominal software. Orbiting momentum.",
+    "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJGMYv4H0U3BzoL0dnZhmJBGaYk3JLUapuRAFteKj2VYr_McnJZ=s288-c-no"
   }
 ]
