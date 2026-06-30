@@ -39,6 +39,7 @@ Open [`src/data/members.json`](./src/data/members.json) and add an object to the
   "location": "Ottawa, ON",
   "tags": ["frontend", "ai"],
   "blurb": "Building developer tools in the 613.",
+  "links": ["https://builderscollective.ca"],
 }
 ```
 
@@ -53,6 +54,22 @@ Open [`src/data/members.json`](./src/data/members.json) and add an object to the
 | `tags`     |    —     | Up to 10 short keywords — your stack, interests.                |
 | `blurb`    |    —     | One short line about what you build (max 200 chars).            |
 | `avatar`   |    —     | URL to a square image. If omitted, we generate a tidy monogram. |
+| `links`    |    —     | Up to 10 full website URLs of other ring members you're connected to (referrers, collaborators, mentors). Shown on the [network page](https://613-web-ring.vercel.app/network). |
+
+### Linking to other members
+
+The optional `links` array maps how builders connect in Ottawa. Each URL must
+match another member's `website` in the ring (use the full `https://` URL).
+
+- Someone referred you? Add their website to your `links`.
+- You referred someone? They can add your website, or you can add theirs.
+- Links are directed — your entry points toward people you're connected to.
+
+Example:
+
+```json
+"links": ["https://builderscollective.ca", "https://zahin.org"]
+```
 
 > **Tip:** Don't forget the comma after the previous entry, and make sure your
 > JSON is valid. The build checks this for you — see below.

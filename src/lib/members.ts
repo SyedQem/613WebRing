@@ -32,6 +32,8 @@ export const memberSchema = z.object({
   blurb: z.string().trim().max(200).optional(),
   /** Optional avatar image URL. */
   avatar: httpsUrl.optional(),
+  /** Optional links to other ring members (full website URLs). */
+  links: z.array(httpsUrl).max(10).optional(),
 });
 
 export type Member = z.infer<typeof memberSchema>;
@@ -106,3 +108,94 @@ export const memberCount = members.length;
 export const allTags: string[] = [
   ...new Set(members.flatMap((m) => m.tags ?? [])),
 ].sort((a, b) => a.localeCompare(b));
+
+export type MemberEdge = { from: RingMember; to: RingMember };
+
+export type NetworkNode = {
+  id: string;
+  name: string;
+  domain: string;
+  website: string;
+  role?: string;
+  tags?: string[];
+};
+
+export type NetworkEdge = { source: string; target: string };
+
+function resolveLinks(): {
+  memberEdges: MemberEdge[];
+  networkGraph: { nodes: NetworkNode[]; edges: NetworkEdge[] };
+} {
+  const byOrigin = new Map(members.map((m) => [m.origin, m]));
+  const edges: MemberEdge[] = [];
+  const errors: string[] = [];
+
+  for (const member of members) {
+    const rawLinks = member.links ?? [];
+    const seen = new Set<string>();
+
+    for (const url of rawLinks) {
+      const { origin } = hostOf(url);
+
+      if (seen.has(origin)) continue;
+      seen.add(origin);
+
+      if (origin === member.origin) {
+        errors.push(
+          `  • ${member.name}: cannot link to yourself (${url})`,
+        );
+        continue;
+      }
+
+      const target = byOrigin.get(origin);
+      if (!target) {
+        errors.push(
+          `  • ${member.name}: link target not in the ring (${url})`,
+        );
+        continue;
+      }
+
+      edges.push({ from: member, to: target });
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(
+      "\n\n613 Webring — src/data/members.json link validation failed:\n" +
+        errors.join("\n") +
+        "\n\nEach link must be another member's full website URL. See CONTRIBUTING.md.\n",
+    );
+  }
+
+  const nodes: NetworkNode[] = members.map((m) => ({
+    id: m.id,
+    name: m.name,
+    domain: m.domain,
+    website: m.website,
+    role: m.role,
+    tags: m.tags,
+  }));
+
+  const networkEdges: NetworkEdge[] = edges.map((e) => ({
+    source: e.from.id,
+    target: e.to.id,
+  }));
+
+  return { memberEdges: edges, networkGraph: { nodes, edges: networkEdges } };
+}
+
+const { memberEdges, networkGraph } = resolveLinks();
+
+/** All resolved directed edges between members. */
+export { memberEdges };
+
+/** Edge count across the network graph. */
+export const linkCount = memberEdges.length;
+
+/** Members with at least one outgoing or incoming link. */
+export const membersWithLinks: RingMember[] = members.filter((m) =>
+  memberEdges.some((e) => e.from.id === m.id || e.to.id === m.id),
+);
+
+/** Serializable graph payload for the network visualization. */
+export { networkGraph };

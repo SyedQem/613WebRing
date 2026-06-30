@@ -1,0 +1,132 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import NetworkGraph from "../components/motion/NetworkGraph.tsx";
+import {
+  memberCount,
+  linkCount,
+  networkGraph,
+} from "../lib/members";
+---
+
+<BaseLayout
+  title="Network"
+  description="See how Ottawa builders connect — referrals, collaborations, mentors, and friends in the 613 Webring."
+>
+  <section class="network-hero">
+    <div class="container network-hero-inner">
+      <p class="eyebrow">The network</p>
+      <h1 class="network-title">How the 613 connects</h1>
+      <p class="lead" data-reveal="fade">
+        See how Ottawa builders connect — referrals, collaborations, mentors, and
+        friends in the 613. Each link is declared by members when they join or
+        update their entry.
+      </p>
+      <div class="network-stats" data-reveal>
+        <div class="stat">
+          <span class="stat-value">{memberCount}</span>
+          <span class="stat-label">builders</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{linkCount}</span>
+          <span class="stat-label">connections</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container network-body">
+    {
+      linkCount === 0 ? (
+        <p class="network-empty" data-reveal="fade">
+          No connections yet — be the first to link yourself to another member
+          when you <a href="/join">join the ring</a>.
+        </p>
+      ) : null
+    }
+
+    <div class="network-viz" data-reveal="fade">
+      <NetworkGraph
+        client:visible
+        nodes={networkGraph.nodes}
+        edges={networkGraph.edges}
+      />
+    </div>
+
+    <section class="network-how" data-reveal>
+      <h2 class="section-title">Add your connections</h2>
+      <p>
+        When you add yourself to <code>members.json</code>, include a
+        <code>links</code> array with the full website URLs of other ring
+        members you're connected to — who referred you, who you've brought in,
+        collaborators, mentors, or friends.
+      </p>
+      <a class="btn btn-primary" href="/join">Join or update your entry</a>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .network-hero {
+    padding-block: clamp(2.5rem, 7vw, 4rem) clamp(2rem, 5vw, 2.5rem);
+    border-bottom: 1px solid var(--border);
+  }
+  .network-title {
+    margin: 0.6rem 0 1rem;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+  }
+  .network-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 600;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .network-body {
+    padding-block: clamp(2rem, 5vw, 3rem) clamp(3rem, 7vw, 5rem);
+  }
+  .network-empty {
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+    padding: 0.9rem 1.1rem;
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+  }
+  .network-viz {
+    margin-bottom: 2.5rem;
+  }
+  .network-how {
+    max-width: 560px;
+  }
+  .network-how .section-title {
+    margin-bottom: 0.6rem;
+  }
+  .network-how p {
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+  }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.05em 0.4em;
+  }
+</style>

@@ -9,7 +9,8 @@ const entryExample = `{
   "role": "Founder · ByWard Market",
   "location": "Ottawa, ON",
   "tags": ["frontend", "ai"],
-  "blurb": "Building developer tools in the 613."
+  "blurb": "Building developer tools in the 613.",
+  "links": ["https://builderscollective.ca"]
 }`;
 
 const fields = [
@@ -36,6 +37,11 @@ const fields = [
   },
   { name: "blurb", req: false, desc: "One short line about what you build." },
   { name: "avatar", req: false, desc: "URL to a square image (optional)." },
+  {
+    name: "links",
+    req: false,
+    desc: "Up to 10 website URLs of other ring members you're connected to — referrers, collaborators, mentors.",
+  },
 ];
 
 const faqs = [

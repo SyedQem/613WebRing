@@ -37,7 +37,8 @@
     "role": "Robotics Engineering",
     "location": "Ottawa, ON",
     "tags": ["robotics", "infra", "network", "platform", "ai"],
-    "blurb": "robotics & systems engineering"
+    "blurb": "robotics & systems engineering",
+    "links": ["https://builderscollective.ca"]
   },
   {
     "name": "Qurb E Muhammad Syed",
@@ -45,7 +46,8 @@
     "role": "Backend & systems · Carleton University",
     "location": "Ottawa, ON",
     "tags": ["backend", "systems", "java", "c++"],
-    "blurb": "Software engineering student building clean, performance-minded backend systems in the 613."
+    "blurb": "Software engineering student building clean, performance-minded backend systems in the 613.",
+    "links": ["https://builderscollective.ca"]
   },
   {
     "name": "Waaberi Ibrahim",
@@ -53,7 +55,8 @@
     "role": "Software Engineering Student · uOttawa",
     "location": "Ottawa, ON",
     "tags": ["full-stack", "ai", "cybersecurity"],
-    "blurb": "Software Engineering student working primarily in full-stack web development, AI, and cybersecurity."
+    "blurb": "Software Engineering student working primarily in full-stack web development, AI, and cybersecurity.",
+    "links": ["https://builderscollective.ca"]
   },
   {
     "name": "Zahin Mohammad",
@@ -61,14 +64,16 @@
     "role": "CTO & Co-founder",
     "location": "Ottawa, ON",
     "tags": ["ai", "full-stack", "ml-systems"],
-    "blurb": "Building software for hard problems"
+    "blurb": "Building software for hard problems",
+    "links": ["https://builderscollective.ca"]
   },
   {
     "name": "Saoussen Slii",
     "website": "https://saoussen-slii.vercel.app/",
     "role": "Software Developer",
     "location": "Ottawa, ON",
-    "tags": ["fullstack", "ai", "typescript", "react", "nodejs", "postgres", "java", "Domain Driven Design", "Event-Driven Architecture"],
-    "blurb": "Bilingual software developer with a passion for building scalable and efficient systems."
+    "tags": ["fullstack", "ai", "typescript", "react", "nodejs", "postgres", "java", "ddd", "event-driven"],
+    "blurb": "Bilingual software developer with a passion for building scalable and efficient systems.",
+    "links": ["https://builderscollective.ca"]
   }
 ]

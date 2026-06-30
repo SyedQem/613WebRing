@@ -36,6 +36,7 @@ export const REPO_NEW_PR_URL = `${REPO_URL}/compare`;
 export const NAV_LINKS = [
   { label: "Members", href: "/#members" },
   { label: "The Ring", href: "/#ring" },
+  { label: "Network", href: "/network" },
   { label: "Join", href: "/join" },
   { label: "GitHub", href: REPO_URL, external: true },
 ] as const;

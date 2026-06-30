@@ -22,6 +22,7 @@ First pull request ever? You're in the right place — we're happy to help.
 - [ ] My entry has at least a `name` and a `website` (full `https://` URL)
 - [ ] My JSON is valid (no trailing comma at the end of the array)
 - [ ] I added the **613 Webring widget** to my site's footer
+- [ ] If someone referred me or I'm connected to other members, I added their websites to `links`
 - [ ] I build software in or around Ottawa (the **613**)
 - [ ] My site has no hateful or malicious content ([Code of Conduct](../CODE_OF_CONDUCT.md))
 
