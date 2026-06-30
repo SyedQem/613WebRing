@@ -45,15 +45,15 @@ Open [`src/data/members.json`](./src/data/members.json) and add an object to the
 
 ### Fields
 
-| Field      | Required | Notes                                                           |
-| ---------- | :------: | --------------------------------------------------------------- |
-| `name`     |    ✅    | Your name or handle (max 80 chars).                             |
-| `website`  |    ✅    | Full URL to your personal site, starting with `https://`.       |
-| `role`     |    —     | Title or affiliation, e.g. `"SWE @ Shopify"` (max 100 chars).   |
-| `location` |    —     | Ottawa neighbourhood or `"Ottawa, ON"` (max 60 chars).          |
-| `tags`     |    —     | Up to 10 short keywords — your stack, interests.                |
-| `blurb`    |    —     | One short line about what you build (max 200 chars).            |
-| `avatar`   |    —     | URL to a square image. If omitted, we generate a tidy monogram. |
+| Field      | Required | Notes                                                                                                                                                                           |
+| ---------- | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`     |    ✅    | Your name or handle (max 80 chars).                                                                                                                                             |
+| `website`  |    ✅    | Full URL to your personal site, starting with `https://`.                                                                                                                       |
+| `role`     |    —     | Title or affiliation, e.g. `"SWE @ Shopify"` (max 100 chars).                                                                                                                   |
+| `location` |    —     | Ottawa neighbourhood or `"Ottawa, ON"` (max 60 chars).                                                                                                                          |
+| `tags`     |    —     | Up to 10 short keywords — your stack, interests.                                                                                                                                |
+| `blurb`    |    —     | One short line about what you build (max 200 chars).                                                                                                                            |
+| `avatar`   |    —     | URL to a square image. If omitted, we generate a tidy monogram.                                                                                                                 |
 | `links`    |    —     | Up to 10 full website URLs of other ring members you're connected to (referrers, collaborators, mentors). Shown on the [network page](https://613-web-ring.vercel.app/network). |
 
 ### Linking to other members
@@ -74,10 +74,7 @@ Example:
 > **Tip:** Don't forget the comma after the previous entry, and make sure your
 > JSON is valid. The build checks this for you — see below.
 
-### The example entries
-
-The repo ships with a few `(example entry)` placeholders so the ring isn't empty.
-Maintainers will remove them as real builders join — you don't need to touch them.
+The ring lists real builders only — add yourself to the end of the array when you join.
 
 ## Step 2: Add the widget to your site
 
@@ -97,11 +94,13 @@ footer. Pick one:
 ```html
 <!-- 613 Webring -->
 <nav class="webring-613" aria-label="613 Webring">
-  <a href="https://613-web-ring.vercel.app/nav?dir=prev&site=https://your-site.com"
+  <a
+    href="https://613-web-ring.vercel.app/nav?dir=prev&site=https://your-site.com"
     >← prev</a
   >
   <a href="https://613-web-ring.vercel.app">613 Webring</a>
-  <a href="https://613-web-ring.vercel.app/nav?dir=next&site=https://your-site.com"
+  <a
+    href="https://613-web-ring.vercel.app/nav?dir=next&site=https://your-site.com"
     >next →</a
   >
 </nav>

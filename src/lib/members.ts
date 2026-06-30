@@ -141,17 +141,13 @@ function resolveLinks(): {
       seen.add(origin);
 
       if (origin === member.origin) {
-        errors.push(
-          `  • ${member.name}: cannot link to yourself (${url})`,
-        );
+        errors.push(`  • ${member.name}: cannot link to yourself (${url})`);
         continue;
       }
 
       const target = byOrigin.get(origin);
       if (!target) {
-        errors.push(
-          `  • ${member.name}: link target not in the ring (${url})`,
-        );
+        errors.push(`  • ${member.name}: link target not in the ring (${url})`);
         continue;
       }
 

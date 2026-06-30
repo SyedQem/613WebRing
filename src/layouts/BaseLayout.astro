@@ -96,7 +96,7 @@ const ogImage = new URL(image, SITE_URL).href;
         <slot />
       ) : (
         <>
-          <div id="boot-cover" aria-hidden="true"></div>
+          <div id="boot-cover" aria-hidden="true" />
           <BootLoader client:load />
           <AsciiField client:load />
           <AmbientBackdrop />

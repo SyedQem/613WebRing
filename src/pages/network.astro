@@ -1,11 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import NetworkGraph from "../components/motion/NetworkGraph.tsx";
-import {
-  memberCount,
-  linkCount,
-  networkGraph,
-} from "../lib/members";
+import { memberCount, linkCount, networkGraph } from "../lib/members";
 ---
 
 <BaseLayout
@@ -17,9 +13,9 @@ import {
       <p class="eyebrow">The network</p>
       <h1 class="network-title">How the 613 connects</h1>
       <p class="lead" data-reveal="fade">
-        See how Ottawa builders connect — referrals, collaborations, mentors, and
-        friends in the 613. Each link is declared by members when they join or
-        update their entry.
+        See how Ottawa builders connect — referrals, collaborations, mentors,
+        and friends in the 613. Each link is declared by members when they join
+        or update their entry.
       </p>
       <div class="network-stats" data-reveal>
         <div class="stat">
@@ -56,9 +52,9 @@ import {
       <h2 class="section-title">Add your connections</h2>
       <p>
         When you add yourself to <code>members.json</code>, include a
-        <code>links</code> array with the full website URLs of other ring
-        members you're connected to — who referred you, who you've brought in,
-        collaborators, mentors, or friends.
+        <code>links</code> array with the full website URLs of other ring members
+        you're connected to — who referred you, who you've brought in, collaborators,
+        mentors, or friends.
       </p>
       <a class="btn btn-primary" href="/join">Join or update your entry</a>
     </section>

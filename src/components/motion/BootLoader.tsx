@@ -133,7 +133,7 @@ export default function BootLoader() {
             a = 0.25 + 0.75 * m;
             ch = m > 0.6 ? "1" : seed > 0.5 ? "1" : "0";
           } else {
-            a = 0.13 * (1 - ep) * (((seed * 53.3) % 1) < 0.5 ? 1 : 0);
+            a = 0.13 * (1 - ep) * ((seed * 53.3) % 1 < 0.5 ? 1 : 0);
             if (a <= 0.01) continue;
             ch = seed > 0.5 ? "1" : "0";
           }
@@ -198,7 +198,9 @@ export default function BootLoader() {
             initial="hidden"
             animate="show"
             variants={{
-              show: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } },
+              show: {
+                transition: { staggerChildren: 0.12, delayChildren: 0.25 },
+              },
             }}
           >
             <motion.p

@@ -92,7 +92,11 @@ export function initMotion() {
   if (!document.documentElement.classList.contains("motion")) return;
 
   try {
-    const lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 0.9, smoothWheel: true });
+    const lenis = new Lenis({
+      lerp: 0.12,
+      wheelMultiplier: 0.9,
+      smoothWheel: true,
+    });
     (window as unknown as { lenis?: Lenis }).lenis = lenis;
 
     const raf = (time: number) => {

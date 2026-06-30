@@ -282,9 +282,7 @@ export default function NetworkGraph({ nodes, edges }: Props) {
               x2={x2}
               y2={y2}
               className={`ng-edge${active ? " ng-edge-active" : ""}`}
-              markerEnd={
-                active ? "url(#arrow-active)" : "url(#arrow)"
-              }
+              markerEnd={active ? "url(#arrow-active)" : "url(#arrow)"}
             />
           );
         })}
@@ -314,11 +312,7 @@ export default function NetworkGraph({ nodes, edges }: Props) {
               aria-label={`${n.name}, ${n.domain}`}
             >
               <circle className="ng-halo" r={r + 6} />
-              <circle
-                className="ng-dot"
-                r={r}
-                fill={swatchFor(n.name)}
-              />
+              <circle className="ng-dot" r={r} fill={swatchFor(n.name)} />
               <text className="ng-label" y={1}>
                 {monogram(n.name) || "·"}
               </text>

@@ -39,9 +39,10 @@ export type AsciiOptions = {
 type Lenis = { velocity?: number };
 
 export class AsciiEngine {
-  private o: Required<
-    Omit<AsciiOptions, "getMask" | "canvas">
-  > & { getMask?: AsciiOptions["getMask"]; canvas: HTMLCanvasElement };
+  private o: Required<Omit<AsciiOptions, "getMask" | "canvas">> & {
+    getMask?: AsciiOptions["getMask"];
+    canvas: HTMLCanvasElement;
+  };
   private ctx: CanvasRenderingContext2D;
   private dpr = 1;
   private cols = 0;
@@ -171,7 +172,8 @@ export class AsciiEngine {
     if (!this.mask) return 0;
     const mx = col - this.maskOffX;
     const my = row - this.maskOffY;
-    if (mx < 0 || my < 0 || mx >= this.maskSize || my >= this.maskSize) return 0;
+    if (mx < 0 || my < 0 || mx >= this.maskSize || my >= this.maskSize)
+      return 0;
     return this.mask.data[my * this.maskSize + mx];
   }
 
@@ -206,10 +208,11 @@ export class AsciiEngine {
         if (m > 0.03) {
           a = o.baseAlpha + (o.maskAlpha - o.baseAlpha) * m;
           // shimmer + leading-edge sparkle keep the logo "alive"
-          a *= 0.7 + 0.3 * Math.sin(t * 1.6 * speed + seed * 6.283 + col * 0.18);
+          a *=
+            0.7 + 0.3 * Math.sin(t * 1.6 * speed + seed * 6.283 + col * 0.18);
         } else {
           // sparse ambient cells, stably chosen via the seed
-          const lit = ((seed * 41.27) % 1) < o.density;
+          const lit = (seed * 41.27) % 1 < o.density;
           if (!lit) continue;
           a =
             o.baseAlpha *
@@ -234,7 +237,8 @@ export class AsciiEngine {
         if (a <= 0.012) continue;
         ctx.globalAlpha = Math.min(1, a);
         // 0/1 flips per cell over time (and snap to '1' inside the dense logo)
-        const flip = Math.sin(t * speed * (0.6 + seed) + seed * 100) > 0 ? 1 : 0;
+        const flip =
+          Math.sin(t * speed * (0.6 + seed) + seed * 100) > 0 ? 1 : 0;
         const ch = m > 0.6 ? "1" : o.chars[flip % o.chars.length];
         ctx.fillText(ch, col * o.cell, row * o.cell);
       }

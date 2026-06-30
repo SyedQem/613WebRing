@@ -12,7 +12,9 @@ export default function AsciiRing({ label = "613" }: { label?: string }) {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const glyphs = "0136";
     const outerCount = 40;

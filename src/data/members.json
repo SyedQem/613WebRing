@@ -8,30 +8,6 @@
     "blurb": "A collective of builders, founders and engineers shipping out of Ottawa."
   },
   {
-    "name": "Riya (example entry)",
-    "website": "https://example.com",
-    "role": "Full-stack developer · Centretown",
-    "location": "Ottawa, ON",
-    "tags": ["example", "web", "typescript"],
-    "blurb": "👋 This is a sample entry. Open a pull request to replace it with yours!"
-  },
-  {
-    "name": "Devon (example entry)",
-    "website": "https://example.org",
-    "role": "ML engineer · Kanata",
-    "location": "Ottawa, ON",
-    "tags": ["example", "ai", "python"],
-    "blurb": "👋 Sample entry — see CONTRIBUTING.md to add your own site to the ring."
-  },
-  {
-    "name": "Sam (example entry)",
-    "website": "https://example.net",
-    "role": "Student & budding coder · uOttawa",
-    "location": "Ottawa, ON",
-    "tags": ["example", "student"],
-    "blurb": "👋 Sample entry — everyone building in the 613 is welcome here."
-  },
-  {
     "name": "Shri Vempati",
     "website": "https://shvempat.vercel.app/",
     "role": "Robotics Engineering",
