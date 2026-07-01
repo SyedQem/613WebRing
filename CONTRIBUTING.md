@@ -45,15 +45,15 @@ Open [`src/data/members.json`](./src/data/members.json) and add an object to the
 
 ### Fields
 
-| Field      | Required | Notes                                                                                                                                                                           |
-| ---------- | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`     |    ✅    | Your name or handle (max 80 chars).                                                                                                                                             |
-| `website`  |    ✅    | Full URL to your personal site, starting with `https://`.                                                                                                                       |
-| `role`     |    —     | Title or affiliation, e.g. `"SWE @ Shopify"` (max 100 chars).                                                                                                                   |
-| `location` |    —     | Ottawa neighbourhood or `"Ottawa, ON"` (max 60 chars).                                                                                                                          |
-| `tags`     |    —     | Up to 10 short keywords — your stack, interests.                                                                                                                                |
-| `blurb`    |    —     | One short line about what you build (max 200 chars).                                                                                                                            |
-| `avatar`   |    —     | URL to a square image. If omitted, we generate a tidy monogram.                                                                                                                 |
+| Field      | Required | Notes                                                                                                                                                                                    |
+| ---------- | :------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`     |    ✅    | Your name or handle (max 80 chars).                                                                                                                                                      |
+| `website`  |    ✅    | Full URL to your personal site, starting with `https://`.                                                                                                                                |
+| `role`     |    —     | Title or affiliation, e.g. `"SWE @ Shopify"` (max 100 chars).                                                                                                                            |
+| `location` |    —     | Ottawa neighbourhood or `"Ottawa, ON"` (max 60 chars).                                                                                                                                   |
+| `tags`     |    —     | Up to 10 short keywords — your stack, interests.                                                                                                                                         |
+| `blurb`    |    —     | One short line about what you build (max 200 chars).                                                                                                                                     |
+| `avatar`   |    —     | URL to a square image. If omitted, we generate a tidy monogram.                                                                                                                          |
 | `links`    |    —     | Up to 10 links to other ring members you're connected to. Each is either a plain URL or `{ "url": …, "type": … }`. Shown on the [network page](https://613-web-ring.vercel.app/network). |
 
 ### Linking to other members
@@ -62,12 +62,12 @@ The optional `links` array maps how builders connect in Ottawa. Each link must
 point at another member's `website` in the ring (use the full `https://` URL).
 You can **tag how you know them** so the network graph colours the connection:
 
-| `type`         | Meaning                                    |
-| -------------- | ------------------------------------------ |
+| `type`         | Meaning                                       |
+| -------------- | --------------------------------------------- |
 | `referred`     | They brought you into the ring / referred you |
-| `collaborator` | You've built something together            |
-| `mentor`       | They mentor you                            |
-| `friend`       | A friend in the 613                        |
+| `collaborator` | You've built something together               |
+| `mentor`       | They mentor you                               |
+| `friend`       | A friend in the 613                           |
 
 Links are directed — your entry points toward people you're connected to. A
 plain URL (no `type`) still works as shorthand and shows as a neutral connection.

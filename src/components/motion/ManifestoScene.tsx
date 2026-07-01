@@ -56,17 +56,17 @@ const LINES: LineMeta[] = PHRASES.map((phrase, k) => {
 function Word({
   meta,
   progress,
-  scrub,
+  mode,
 }: {
   meta: WordMeta;
   progress: MotionValue<number>;
-  scrub: boolean;
+  mode: "scrub" | "cycle" | "static";
 }) {
   const opacity = useTransform(progress, [meta.wStart, meta.wEnd], [0, 1]);
   const y = useTransform(progress, [meta.wStart, meta.wEnd], [14, 0]);
   const className = meta.w.includes("613") ? "m-word m-word-hl" : "m-word";
 
-  if (!scrub) return <span className={className}>{meta.w} </span>;
+  if (mode !== "scrub") return <span className={className}>{meta.w} </span>;
   return (
     <motion.span className={className} style={{ opacity, y }}>
       {meta.w}{" "}
@@ -76,12 +76,16 @@ function Word({
 
 function Line({
   line,
+  index,
   progress,
-  scrub,
+  mode,
+  activeBeat,
 }: {
   line: LineMeta;
+  index: number;
   progress: MotionValue<number>;
-  scrub: boolean;
+  mode: "scrub" | "cycle" | "static";
+  activeBeat: number;
 }) {
   // Envelope: hidden before the beat, present during it, gone once the next
   // beat takes over (the last beat holds at full opacity to the end).
@@ -89,18 +93,32 @@ function Line({
     ? [line.start, line.inMark]
     : [line.start, line.inMark, line.outStart, line.outEnd];
   const ys = line.isLast ? [0, 1] : [0, 1, 1, 0];
-  const opacity = useTransform(progress, xs, ys);
+  const scrubOpacity = useTransform(progress, xs, ys);
 
   const inner = line.words.map((meta, j) => (
-    <Word key={j} meta={meta} progress={progress} scrub={scrub} />
+    <Word key={j} meta={meta} progress={progress} mode={mode} />
   ));
 
-  if (!scrub) return <span className="m-line">{inner}</span>;
-  return (
-    <motion.span className="m-line" style={{ opacity }}>
-      {inner}
-    </motion.span>
-  );
+  if (mode === "scrub") {
+    return (
+      <motion.span className="m-line" style={{ opacity: scrubOpacity }}>
+        {inner}
+      </motion.span>
+    );
+  }
+  if (mode === "cycle") {
+    return (
+      <motion.span
+        className="m-line"
+        initial={false}
+        animate={{ opacity: index === activeBeat ? 1 : 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
+      >
+        {inner}
+      </motion.span>
+    );
+  }
+  return <span className="m-line">{inner}</span>;
 }
 
 /**
@@ -113,6 +131,7 @@ export default function ManifestoScene() {
   const reduced = useReducedMotion();
   const [compact, setCompact] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [activeBeat, setActiveBeat] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -123,13 +142,65 @@ export default function ManifestoScene() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  // Compact / reduced-motion path: no scroll pin available, so auto-cycle the
+  // beats while the section is on screen. Locks to the last beat once it plays
+  // so the closing line stays visible (matches desktop behavior).
+  useEffect(() => {
+    if (!mounted) return;
+    if (!compact && !reduced) return;
+    const el = ref.current;
+    if (!el) return;
+
+    let timer: number | undefined;
+    let started = false;
+
+    const start = () => {
+      if (started) return;
+      started = true;
+      setActiveBeat(0);
+      timer = window.setInterval(() => {
+        setActiveBeat((b) => {
+          if (b >= N - 1) {
+            if (timer !== undefined) {
+              window.clearInterval(timer);
+              timer = undefined;
+            }
+            return N - 1;
+          }
+          return b + 1;
+        });
+      }, 2200);
+    };
+
+    // Play once the section enters; keep playing even if the user scrolls
+    // past, since the section can be shorter than one full cycle on mobile.
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          start();
+          io.disconnect();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      if (timer !== undefined) window.clearInterval(timer);
+    };
+  }, [mounted, compact, reduced]);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
   });
 
   // Render plain (full-opacity) until mounted so SSR / no-JS stays readable.
-  const scrub = mounted && !reduced && !compact;
+  const mode: "scrub" | "cycle" | "static" = !mounted
+    ? "static"
+    : reduced || compact
+      ? "cycle"
+      : "scrub";
 
   return (
     <section ref={ref} id="manifesto" className="manifesto" data-section-glow>
@@ -145,8 +216,10 @@ export default function ManifestoScene() {
                 <Line
                   key={li}
                   line={line}
+                  index={li}
                   progress={scrollYProgress}
-                  scrub={scrub}
+                  mode={mode}
+                  activeBeat={activeBeat}
                 />
               ))}
             </h2>

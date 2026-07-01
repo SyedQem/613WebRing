@@ -39,7 +39,7 @@ Two files are the source of truth; most work flows through them:
   nav/social links, repo URLs). `astro.config.mjs` and all widget snippets read
   `SITE_URL` from here. Change the domain in this one place.
 - **`src/data/members.json`** — the ring itself. This is the file contributors
-  edit; order in the array *is* ring order. Only `name` and `website` are
+  edit; order in the array _is_ ring order. Only `name` and `website` are
   required; see `memberSchema` for the rest.
 
 **`src/lib/members.ts`** is the data layer. It validates `members.json`, then
@@ -51,6 +51,7 @@ derived member field means editing `RingMember` and the `.map()` here — don't
 recompute in components.
 
 **Navigation flow (the webring mechanism):**
+
 1. A member embeds `public/widget.js` on their own site. It renders in a Shadow
    DOM (style-isolated) and derives the ring's origin from its own `<script src>`.
 2. Its prev/next/random links point to `SITE_URL/nav?dir=…&site=<their-origin>`.
