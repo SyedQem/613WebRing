@@ -17,6 +17,25 @@ const httpsUrl = z
     message: "must start with http:// or https://",
   });
 
+/**
+ * How one builder knows another. Directed, from the author's perspective.
+ * Plain-string links (no type) normalise to a neutral "connection".
+ */
+export const relationshipType = z.enum([
+  "referred",
+  "collaborator",
+  "mentor",
+  "friend",
+]);
+
+export type RelationshipType = z.infer<typeof relationshipType>;
+
+/** A link is either a bare URL (shorthand) or `{ url, type }`. */
+const linkSchema = z.union([
+  httpsUrl,
+  z.object({ url: httpsUrl, type: relationshipType.optional() }),
+]);
+
 export const memberSchema = z.object({
   /** Display name. Required. */
   name: z.string().trim().min(1).max(80),
@@ -32,8 +51,8 @@ export const memberSchema = z.object({
   blurb: z.string().trim().max(200).optional(),
   /** Optional avatar image URL. */
   avatar: httpsUrl.optional(),
-  /** Optional links to other ring members (full website URLs). */
-  links: z.array(httpsUrl).max(10).optional(),
+  /** Optional links to other ring members (URL or `{ url, type }`). */
+  links: z.array(linkSchema).max(10).optional(),
 });
 
 export type Member = z.infer<typeof memberSchema>;
@@ -109,7 +128,10 @@ export const allTags: string[] = [
   ...new Set(members.flatMap((m) => m.tags ?? [])),
 ].sort((a, b) => a.localeCompare(b));
 
-export type MemberEdge = { from: RingMember; to: RingMember };
+/** Relationship carried on an edge; untyped links become "connection". */
+export type EdgeType = RelationshipType | "connection";
+
+export type MemberEdge = { from: RingMember; to: RingMember; type: EdgeType };
 
 export type NetworkNode = {
   id: string;
@@ -120,7 +142,7 @@ export type NetworkNode = {
   tags?: string[];
 };
 
-export type NetworkEdge = { source: string; target: string };
+export type NetworkEdge = { source: string; target: string; type: EdgeType };
 
 function resolveLinks(): {
   memberEdges: MemberEdge[];
@@ -134,7 +156,13 @@ function resolveLinks(): {
     const rawLinks = member.links ?? [];
     const seen = new Set<string>();
 
-    for (const url of rawLinks) {
+    for (const raw of rawLinks) {
+      // Normalise the two accepted shapes to `{ url, type }`.
+      const { url, type }: { url: string; type: EdgeType } =
+        typeof raw === "string"
+          ? { url: raw, type: "connection" }
+          : { url: raw.url, type: raw.type ?? "connection" };
+
       const { origin } = hostOf(url);
 
       if (seen.has(origin)) continue;
@@ -151,7 +179,7 @@ function resolveLinks(): {
         continue;
       }
 
-      edges.push({ from: member, to: target });
+      edges.push({ from: member, to: target, type });
     }
   }
 
@@ -175,6 +203,7 @@ function resolveLinks(): {
   const networkEdges: NetworkEdge[] = edges.map((e) => ({
     source: e.from.id,
     target: e.to.id,
+    type: e.type,
   }));
 
   return { memberEdges: edges, networkGraph: { nodes, edges: networkEdges } };

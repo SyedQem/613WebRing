@@ -52,9 +52,22 @@ import { memberCount, linkCount, networkGraph } from "../lib/members";
       <h2 class="section-title">Add your connections</h2>
       <p>
         When you add yourself to <code>members.json</code>, include a
-        <code>links</code> array with the full website URLs of other ring members
-        you're connected to — who referred you, who you've brought in, collaborators,
-        mentors, or friends.
+        <code>links</code> array pointing at other ring members you're connected to.
+        Tag each one so the graph shows <em>how</em> you know them:
+      </p>
+      <ul class="rel-key">
+        <li><code>referred</code> — they brought you into the ring</li>
+        <li><code>collaborator</code> — you've built something together</li>
+        <li><code>mentor</code> — they mentor you</li>
+        <li><code>friend</code> — a friend in the 613</li>
+      </ul>
+      <pre
+        class="code-card"><code>{`"links": [
+  { "url": "https://zahin.org", "type": "mentor" },
+  "https://builderscollective.ca"
+]`}</code></pre>
+      <p class="rel-note">
+        A plain URL still works as shorthand — it shows as a neutral connection.
       </p>
       <a class="btn btn-primary" href="/join">Join or update your entry</a>
     </section>
@@ -116,6 +129,38 @@ import { memberCount, linkCount, networkGraph } from "../lib/members";
     color: var(--text-muted);
     margin-bottom: 1.2rem;
     line-height: 1.6;
+  }
+  .rel-key {
+    list-style: none;
+    margin: 0 0 1.2rem;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .rel-key li {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+  .code-card {
+    margin: 0 0 0.8rem;
+    padding: 1rem 1.1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .code-card code {
+    background: none;
+    border: none;
+    padding: 0;
+    white-space: pre;
+  }
+  .rel-note {
+    font-size: 0.88rem;
   }
   code {
     font-family: var(--font-mono);

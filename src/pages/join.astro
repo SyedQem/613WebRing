@@ -10,7 +10,10 @@ const entryExample = `{
   "location": "Ottawa, ON",
   "tags": ["frontend", "ai"],
   "blurb": "Building developer tools in the 613.",
-  "links": ["https://builderscollective.ca"]
+  "links": [
+    { "url": "https://ada-mentor.dev", "type": "mentor" },
+    "https://builderscollective.ca"
+  ]
 }`;
 
 const fields = [
@@ -40,7 +43,7 @@ const fields = [
   {
     name: "links",
     req: false,
-    desc: "Up to 10 website URLs of other ring members you're connected to — referrers, collaborators, mentors.",
+    desc: "Up to 10 links to other ring members. Plain URL, or {url, type} where type is referred / collaborator / mentor / friend — see the network page.",
   },
 ];
 

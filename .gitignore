@@ -27,3 +27,9 @@ pnpm-debug.log*
 !.vscode/extensions.json
 .idea/
 *.tsbuildinfo
+
+# ai stuff
+
+.claude/
+.openai/
+.cursor/

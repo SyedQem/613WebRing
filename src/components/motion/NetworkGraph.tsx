@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { NetworkEdge, NetworkNode } from "../../lib/members";
+import type { EdgeType, NetworkEdge, NetworkNode } from "../../lib/members";
 
 const PALETTE = [
   "#1c1c1c",
@@ -9,6 +9,54 @@ const PALETTE = [
   "#5c5c5c",
   "#707070",
 ];
+
+/** Edge colour + legend label per relationship type. */
+const EDGE_STYLE: Record<EdgeType, { color: string; label: string }> = {
+  referred: { color: "var(--rel-referred)", label: "Referred" },
+  collaborator: { color: "var(--rel-collaborator)", label: "Collaborator" },
+  mentor: { color: "var(--rel-mentor)", label: "Mentor" },
+  friend: { color: "var(--rel-friend)", label: "Friend" },
+  connection: { color: "var(--node-line)", label: "Connection" },
+};
+
+const EDGE_TYPES: EdgeType[] = [
+  "referred",
+  "collaborator",
+  "mentor",
+  "friend",
+  "connection",
+];
+
+/** Phrase an edge from the active node's perspective. */
+function phraseOutgoing(type: EdgeType, name: string): string {
+  switch (type) {
+    case "referred":
+      return `Referred by ${name}`;
+    case "collaborator":
+      return `Collaborates with ${name}`;
+    case "mentor":
+      return `Mentored by ${name}`;
+    case "friend":
+      return `Friends with ${name}`;
+    default:
+      return `Connected to ${name}`;
+  }
+}
+
+function phraseIncoming(type: EdgeType, name: string): string {
+  switch (type) {
+    case "referred":
+      return `Referred ${name}`;
+    case "collaborator":
+      return `Collaborates with ${name}`;
+    case "mentor":
+      return `Mentors ${name}`;
+    case "friend":
+      return `Friends with ${name}`;
+    default:
+      return `Linked from ${name}`;
+  }
+}
 
 type SimNode = NetworkNode & {
   x: number;
@@ -75,6 +123,41 @@ export default function NetworkGraph({ nodes, edges }: Props) {
         .map((e) => `${e.source}->${e.target}`),
     );
   }, [activeId, edges]);
+
+  const nameById = useMemo(
+    () => new Map(nodes.map((n) => [n.id, n.name])),
+    [nodes],
+  );
+
+  /** Connections of the active node, phrased for the info panel. */
+  const activeConnections = useMemo(() => {
+    if (!activeId) return [] as { key: string; type: EdgeType; text: string }[];
+    const out: { key: string; type: EdgeType; text: string }[] = [];
+    for (const e of edges) {
+      if (e.source === activeId) {
+        const name = nameById.get(e.target) ?? e.target;
+        out.push({
+          key: `o:${e.source}->${e.target}`,
+          type: e.type,
+          text: phraseOutgoing(e.type, name),
+        });
+      } else if (e.target === activeId) {
+        const name = nameById.get(e.source) ?? e.source;
+        out.push({
+          key: `i:${e.source}->${e.target}`,
+          type: e.type,
+          text: phraseIncoming(e.type, name),
+        });
+      }
+    }
+    return out;
+  }, [activeId, edges, nameById]);
+
+  /** Relationship types actually present, in canonical order (for the legend). */
+  const presentTypes = useMemo(() => {
+    const set = new Set(edges.map((e) => e.type));
+    return EDGE_TYPES.filter((t) => set.has(t));
+  }, [edges]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -235,28 +318,20 @@ export default function NetworkGraph({ nodes, edges }: Props) {
         onPointerLeave={onPointerUp}
       >
         <defs>
-          <marker
-            id="arrow"
-            viewBox="0 -4 8 8"
-            refX="6"
-            refY="0"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M0,-4 L8,0 L0,4" fill="var(--node-line)" />
-          </marker>
-          <marker
-            id="arrow-active"
-            viewBox="0 -4 8 8"
-            refX="6"
-            refY="0"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M0,-4 L8,0 L0,4" fill="var(--text-muted)" />
-          </marker>
+          {EDGE_TYPES.map((t) => (
+            <marker
+              key={t}
+              id={`arrow-${t}`}
+              viewBox="0 -4 8 8"
+              refX="6"
+              refY="0"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto"
+            >
+              <path d="M0,-4 L8,0 L0,4" fill={EDGE_STYLE[t].color} />
+            </marker>
+          ))}
         </defs>
 
         {edges.map((e) => {
@@ -265,6 +340,7 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           if (!from || !to) return null;
           const key = `${e.source}->${e.target}`;
           const active = incidentEdges.has(key);
+          const dimmed = activeId != null && !active;
           const rFrom = nodeRadius(from.degree);
           const rTo = nodeRadius(to.degree);
           const dx = to.x - from.x;
@@ -281,8 +357,11 @@ export default function NetworkGraph({ nodes, edges }: Props) {
               y1={y1}
               x2={x2}
               y2={y2}
-              className={`ng-edge${active ? " ng-edge-active" : ""}`}
-              markerEnd={active ? "url(#arrow-active)" : "url(#arrow)"}
+              stroke={EDGE_STYLE[e.type].color}
+              className={`ng-edge${active ? " ng-edge-active" : ""}${
+                dimmed ? " ng-edge-dim" : ""
+              }`}
+              markerEnd={`url(#arrow-${e.type})`}
             />
           );
         })}
@@ -334,6 +413,20 @@ export default function NetworkGraph({ nodes, edges }: Props) {
                 {activeNode.tags.slice(0, 4).join(" · ")}
               </span>
             )}
+            {activeConnections.length > 0 && (
+              <ul className="ng-panel-conns">
+                {activeConnections.map((c) => (
+                  <li key={c.key}>
+                    <span
+                      className="ng-conn-dot"
+                      style={{ background: EDGE_STYLE[c.type].color }}
+                      aria-hidden="true"
+                    />
+                    {c.text}
+                  </li>
+                ))}
+              </ul>
+            )}
             <span className="ng-panel-hint">Click to visit site</span>
           </>
         ) : (
@@ -346,6 +439,20 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           </>
         )}
       </div>
+
+      {presentTypes.length > 0 && (
+        <div className="ng-legend" aria-hidden="true">
+          {presentTypes.map((t) => (
+            <span key={t} className="ng-legend-item">
+              <span
+                className="ng-legend-dot"
+                style={{ background: EDGE_STYLE[t].color }}
+              />
+              {EDGE_STYLE[t].label}
+            </span>
+          ))}
+        </div>
+      )}
 
       <style>{`
         .network-graph-wrap {
@@ -369,13 +476,18 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           cursor: grabbing;
         }
         .ng-edge {
-          stroke: var(--node-line);
           stroke-width: 1.2;
-          transition: stroke 0.15s var(--ease);
+          opacity: 0.85;
+          transition:
+            opacity 0.15s var(--ease),
+            stroke-width 0.15s var(--ease);
         }
         .ng-edge-active {
-          stroke: var(--text-muted);
-          stroke-width: 1.6;
+          stroke-width: 2;
+          opacity: 1;
+        }
+        .ng-edge-dim {
+          opacity: 0.14;
         }
         .ng-node {
           cursor: pointer;
@@ -445,12 +557,61 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           font-size: 0.82rem;
           color: var(--text-subtle);
         }
+        .ng-panel-conns {
+          list-style: none;
+          margin: 0.35rem 0 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+        }
+        .ng-panel-conns li {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+          font-size: 0.82rem;
+          color: var(--text-muted);
+        }
+        .ng-conn-dot {
+          flex-shrink: 0;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+        }
         .ng-panel-hint {
           margin-top: 0.25rem;
           font-size: 0.72rem;
           color: var(--text-subtle);
           text-transform: uppercase;
           letter-spacing: 0.05em;
+        }
+        .ng-legend {
+          position: absolute;
+          right: 1rem;
+          top: 1rem;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          gap: 0.35rem 0.75rem;
+          max-width: min(320px, calc(100% - 2rem));
+          padding: 0.55rem 0.75rem;
+          background: color-mix(in srgb, var(--bg) 88%, transparent);
+          backdrop-filter: blur(12px);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          pointer-events: none;
+        }
+        .ng-legend-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-size: 0.74rem;
+          color: var(--text-muted);
+        }
+        .ng-legend-dot {
+          width: 9px;
+          height: 2px;
+          border-radius: 2px;
         }
       `}</style>
     </div>

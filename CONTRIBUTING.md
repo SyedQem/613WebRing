@@ -54,21 +54,32 @@ Open [`src/data/members.json`](./src/data/members.json) and add an object to the
 | `tags`     |    —     | Up to 10 short keywords — your stack, interests.                                                                                                                                |
 | `blurb`    |    —     | One short line about what you build (max 200 chars).                                                                                                                            |
 | `avatar`   |    —     | URL to a square image. If omitted, we generate a tidy monogram.                                                                                                                 |
-| `links`    |    —     | Up to 10 full website URLs of other ring members you're connected to (referrers, collaborators, mentors). Shown on the [network page](https://613-web-ring.vercel.app/network). |
+| `links`    |    —     | Up to 10 links to other ring members you're connected to. Each is either a plain URL or `{ "url": …, "type": … }`. Shown on the [network page](https://613-web-ring.vercel.app/network). |
 
 ### Linking to other members
 
-The optional `links` array maps how builders connect in Ottawa. Each URL must
-match another member's `website` in the ring (use the full `https://` URL).
+The optional `links` array maps how builders connect in Ottawa. Each link must
+point at another member's `website` in the ring (use the full `https://` URL).
+You can **tag how you know them** so the network graph colours the connection:
 
-- Someone referred you? Add their website to your `links`.
-- You referred someone? They can add your website, or you can add theirs.
-- Links are directed — your entry points toward people you're connected to.
+| `type`         | Meaning                                    |
+| -------------- | ------------------------------------------ |
+| `referred`     | They brought you into the ring / referred you |
+| `collaborator` | You've built something together            |
+| `mentor`       | They mentor you                            |
+| `friend`       | A friend in the 613                        |
 
-Example:
+Links are directed — your entry points toward people you're connected to. A
+plain URL (no `type`) still works as shorthand and shows as a neutral connection.
+
+Example (mix both forms freely):
 
 ```json
-"links": ["https://builderscollective.ca", "https://zahin.org"]
+"links": [
+  { "url": "https://zahin.org", "type": "mentor" },
+  { "url": "https://saoussen-slii.vercel.app/", "type": "collaborator" },
+  "https://builderscollective.ca"
+]
 ```
 
 > **Tip:** Don't forget the comma after the previous entry, and make sure your
