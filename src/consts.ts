@@ -24,7 +24,7 @@ export const BCO = {
   short: "BCO",
   url: "https://builderscollective.ca",
   instagram: "https://instagram.com/builderscollectiveottawa",
-  discord: "https://discord.gg/builderscollective",
+  discord: "https://discord.gg/9vAE49C4qS",
 } as const;
 
 /** Public repository — where members open their pull request to join. */
