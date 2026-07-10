@@ -483,6 +483,18 @@ html.booting #boot-cover {
     height: 100vh;
   }
 }
+/* Reduced motion renders the statement fully visible (no scrub), so drop the
+   pin too — matches the component's `static` mode exactly. */
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  .manifesto {
+    height: auto;
+  }
+  .manifesto-sticky {
+    position: static;
+    height: auto;
+    padding-block: clamp(4rem, 8vw, 7rem);
+  }
+}
 @media (max-width: 900px) {
   .manifesto-sticky {
     padding-block: clamp(4rem, 12vw, 7rem);

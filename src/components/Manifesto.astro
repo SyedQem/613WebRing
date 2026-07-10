@@ -2,4 +2,9 @@
 import ManifestoScene from "./motion/ManifestoScene.tsx";
 ---
 
-<ManifestoScene client:visible />
+{
+  /* client:idle (not client:visible): hydrating while the section is already
+    on screen would snap the SSR text to the scrub's hidden state mid-view,
+    and late hydration gives useScroll poor first measurements. */
+}
+<ManifestoScene client:idle />

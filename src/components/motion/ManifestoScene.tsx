@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import {
   motion,
+  useMotionValue,
   useReducedMotion,
-  useScroll,
   useTransform,
   type MotionValue,
 } from "motion/react";
@@ -22,6 +22,11 @@ const PHRASES = [
 const N = PHRASES.length;
 const SLOT = 1 / N;
 const WORDS_IN = SLOT * 0.55;
+
+// static: SSR / pre-mount / reduced-motion — all lines fully visible.
+// inview: small screens — each line fades up once as it enters the viewport.
+// scrub:  desktop — scroll-linked beats inside the sticky pin.
+type Mode = "static" | "inview" | "scrub";
 
 type WordMeta = { w: string; wStart: number; wEnd: number };
 type LineMeta = {
@@ -60,7 +65,7 @@ function Word({
 }: {
   meta: WordMeta;
   progress: MotionValue<number>;
-  mode: "scrub" | "cycle" | "static";
+  mode: Mode;
 }) {
   const opacity = useTransform(progress, [meta.wStart, meta.wEnd], [0, 1]);
   const y = useTransform(progress, [meta.wStart, meta.wEnd], [14, 0]);
@@ -79,13 +84,11 @@ function Line({
   index,
   progress,
   mode,
-  activeBeat,
 }: {
   line: LineMeta;
   index: number;
   progress: MotionValue<number>;
-  mode: "scrub" | "cycle" | "static";
-  activeBeat: number;
+  mode: Mode;
 }) {
   // Envelope: hidden before the beat, present during it, gone once the next
   // beat takes over (the last beat holds at full opacity to the end).
@@ -106,13 +109,18 @@ function Line({
       </motion.span>
     );
   }
-  if (mode === "cycle") {
+  if (mode === "inview") {
     return (
       <motion.span
         className="m-line"
-        initial={false}
-        animate={{ opacity: index === activeBeat ? 1 : 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{
+          duration: 0.6,
+          ease: [0.22, 0.61, 0.36, 1],
+          delay: index * 0.08,
+        }}
       >
         {inner}
       </motion.span>
@@ -124,14 +132,15 @@ function Line({
 /**
  * "How the ring works" — a pinned scene (CSS sticky) that reveals the statement
  * one beat at a time as you scroll (each fades out as the next arrives), beside a
- * rotating ASCII ring. On small screens it unpins and reads as a normal section.
+ * rotating ASCII ring. On small screens it unpins: every line sits in normal flow
+ * and fades up once as it scrolls into view, then stays visible. Reduced-motion
+ * users get the whole statement fully visible with no animation.
  */
 export default function ManifestoScene() {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const [compact, setCompact] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [activeBeat, setActiveBeat] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -142,65 +151,34 @@ export default function ManifestoScene() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // Compact / reduced-motion path: no scroll pin available, so auto-cycle the
-  // beats while the section is on screen. Locks to the last beat once it plays
-  // so the closing line stays visible (matches desktop behavior).
+  // Pin progress (0 → section top hits viewport top, 1 → section bottom hits
+  // viewport bottom), computed from live geometry on every scroll/resize.
+  // Deliberately not useScroll({ target }): its cached offset resolution goes
+  // non-monotonic over a sticky-pinned target in Chromium, which made the last
+  // beat fade back out before the pin released.
+  const scrollYProgress = useMotionValue(0);
   useEffect(() => {
     if (!mounted) return;
-    if (!compact && !reduced) return;
     const el = ref.current;
     if (!el) return;
-
-    let timer: number | undefined;
-    let started = false;
-
-    const start = () => {
-      if (started) return;
-      started = true;
-      setActiveBeat(0);
-      timer = window.setInterval(() => {
-        setActiveBeat((b) => {
-          if (b >= N - 1) {
-            if (timer !== undefined) {
-              window.clearInterval(timer);
-              timer = undefined;
-            }
-            return N - 1;
-          }
-          return b + 1;
-        });
-      }, 2200);
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      const range = rect.height - window.innerHeight;
+      const p = range > 0 ? Math.min(1, Math.max(0, -rect.top / range)) : 1;
+      scrollYProgress.set(p);
     };
-
-    // Play once the section enters; keep playing even if the user scrolls
-    // past, since the section can be shorter than one full cycle on mobile.
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          start();
-          io.disconnect();
-        }
-      },
-      { threshold: 0.25 },
-    );
-    io.observe(el);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      io.disconnect();
-      if (timer !== undefined) window.clearInterval(timer);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
-  }, [mounted, compact, reduced]);
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
+  }, [mounted, scrollYProgress]);
 
   // Render plain (full-opacity) until mounted so SSR / no-JS stays readable.
-  const mode: "scrub" | "cycle" | "static" = !mounted
-    ? "static"
-    : reduced || compact
-      ? "cycle"
-      : "scrub";
+  const mode: Mode =
+    !mounted || reduced ? "static" : compact ? "inview" : "scrub";
 
   return (
     <section ref={ref} id="manifesto" className="manifesto" data-section-glow>
@@ -219,7 +197,6 @@ export default function ManifestoScene() {
                   index={li}
                   progress={scrollYProgress}
                   mode={mode}
-                  activeBeat={activeBeat}
                 />
               ))}
             </h2>

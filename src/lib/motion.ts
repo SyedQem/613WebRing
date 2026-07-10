@@ -105,15 +105,29 @@ export function initMotion() {
     };
     requestAnimationFrame(raf);
 
-    // Hold scroll while the boot loader is running, then hand it back.
+    // Hold scroll while the boot loader is running, then hand it back
+    // exactly once — boot:done normally, the timeout only as a failsafe
+    // (BaseLayout's 6000ms failsafe strips `booting` without dispatching
+    // boot:done, so Lenis must restart here even if hydration failed).
     if (document.documentElement.classList.contains("booting")) {
       lenis.stop();
-      const resume = () => {
+      let resumed = false;
+      let fallback: number | undefined;
+      const resume = (isBootDone: boolean) => {
+        if (resumed) return;
+        resumed = true;
+        window.clearTimeout(fallback);
         lenis.start();
-        lenis.scrollTo(0, { immediate: true });
+        // Snap to the top only on a real boot completion, and never when
+        // the URL targets an anchor (deep links keep their position).
+        if (isBootDone && !location.hash) {
+          lenis.scrollTo(0, { immediate: true });
+        }
       };
-      window.addEventListener("boot:done", resume, { once: true });
-      window.setTimeout(resume, 6500);
+      window.addEventListener("boot:done", () => resume(true), {
+        once: true,
+      });
+      fallback = window.setTimeout(() => resume(false), 6500);
     }
 
     reveals();
