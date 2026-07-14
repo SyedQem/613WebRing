@@ -108,12 +108,18 @@ export function initMotion() {
     // Hold scroll while the boot loader is running, then hand it back.
     if (document.documentElement.classList.contains("booting")) {
       lenis.stop();
+      let resumed = false;
       const resume = () => {
+        // The fallback timer can fire after boot:done already resumed —
+        // guard so the top-scroll can't yank a user who has started scrolling.
+        if (resumed) return;
+        resumed = true;
+        window.clearTimeout(fallback);
         lenis.start();
         lenis.scrollTo(0, { immediate: true });
       };
       window.addEventListener("boot:done", resume, { once: true });
-      window.setTimeout(resume, 6500);
+      const fallback = window.setTimeout(resume, 6500);
     }
 
     reveals();
