@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "613-web-ring.vercel.app"
+        }
+      ],
+      "destination": "https://www.613webring.ca/:path*",
+      "permanent": true
+    }
+  ]
+}
