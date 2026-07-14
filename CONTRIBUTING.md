@@ -45,16 +45,16 @@ Open [`src/data/members.json`](./src/data/members.json) and add an object to the
 
 ### Fields
 
-| Field      | Required | Notes                                                                                                                                                                                    |
-| ---------- | :------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`     |    ✅    | Your name or handle (max 80 chars).                                                                                                                                                      |
-| `website`  |    ✅    | Full URL to your personal site, starting with `https://`.                                                                                                                                |
-| `role`     |    —     | Title or affiliation, e.g. `"SWE @ Shopify"` (max 100 chars).                                                                                                                            |
-| `location` |    —     | Ottawa neighbourhood or `"Ottawa, ON"` (max 60 chars).                                                                                                                                   |
-| `tags`     |    —     | Up to 10 short keywords — your stack, interests.                                                                                                                                         |
-| `blurb`    |    —     | One short line about what you build (max 200 chars).                                                                                                                                     |
-| `avatar`   |    —     | URL to a square image. If omitted, we generate a tidy monogram.                                                                                                                          |
-| `links`    |    —     | Up to 10 links to other ring members you're connected to. Each is either a plain URL or `{ "url": …, "type": … }`. Shown on the [network page](https://613-web-ring.vercel.app/network). |
+| Field      | Required | Notes                                                                                                                                                                              |
+| ---------- | :------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`     |    ✅    | Your name or handle (max 80 chars).                                                                                                                                                |
+| `website`  |    ✅    | Full URL to your personal site, starting with `https://`.                                                                                                                          |
+| `role`     |    —     | Title or affiliation, e.g. `"SWE @ Shopify"` (max 100 chars).                                                                                                                      |
+| `location` |    —     | Ottawa neighbourhood or `"Ottawa, ON"` (max 60 chars).                                                                                                                             |
+| `tags`     |    —     | Up to 10 short keywords — your stack, interests.                                                                                                                                   |
+| `blurb`    |    —     | One short line about what you build (max 200 chars).                                                                                                                               |
+| `avatar`   |    —     | URL to a square image. If omitted, we generate a tidy monogram.                                                                                                                    |
+| `links`    |    —     | Up to 10 links to other ring members you're connected to. Each is either a plain URL or `{ "url": …, "type": … }`. Shown on the [network page](https://www.613webring.ca/network). |
 
 ### Linking to other members
 
@@ -97,7 +97,7 @@ footer. Pick one:
 ```html
 <!-- 613 Webring -->
 <div id="webring-613"></div>
-<script src="https://613-web-ring.vercel.app/widget.js" defer></script>
+<script src="https://www.613webring.ca/widget.js" defer></script>
 ```
 
 **No-JavaScript alternative** (replace `https://your-site.com` with your URL):
@@ -105,13 +105,11 @@ footer. Pick one:
 ```html
 <!-- 613 Webring -->
 <nav class="webring-613" aria-label="613 Webring">
-  <a
-    href="https://613-web-ring.vercel.app/nav?dir=prev&site=https://your-site.com"
+  <a href="https://www.613webring.ca/nav?dir=prev&site=https://your-site.com"
     >← prev</a
   >
-  <a href="https://613-web-ring.vercel.app">613 Webring</a>
-  <a
-    href="https://613-web-ring.vercel.app/nav?dir=next&site=https://your-site.com"
+  <a href="https://www.613webring.ca">613 Webring</a>
+  <a href="https://www.613webring.ca/nav?dir=next&site=https://your-site.com"
     >next →</a
   >
 </nav>

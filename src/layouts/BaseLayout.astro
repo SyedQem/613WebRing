@@ -78,6 +78,15 @@ const ogImage = new URL(image, SITE_URL).href;
             !window.matchMedia("(prefers-reduced-motion: reduce)").matches
           ) {
             root.classList.add("motion");
+            // Failsafe: `.motion` arms the hidden pre-reveal states, but the
+            // reveals live in a module script. If that module never boots
+            // (failed fetch, unsupported browser), strip the class so content
+            // renders visible instead of staying trapped at opacity 0.
+            setTimeout(function () {
+              if (!root.hasAttribute("data-motion-ready")) {
+                root.classList.remove("motion");
+              }
+            }, 4000);
             if (sessionStorage.getItem("613:booted") !== "1") {
               root.classList.add("booting");
               // Failsafe: never trap the page if hydration fails to complete.

@@ -34,7 +34,11 @@ function reveals() {
         { duration: 0.75, ease: EASE },
       );
     },
-    { amount: 0.2, margin: "0px 0px -8% 0px" },
+    // `amount` must be "some" (any pixel visible), not a fraction: a fixed
+    // fraction can never be reached by elements taller than the viewport
+    // (e.g. the member grid stacked to one column on a phone), leaving them
+    // permanently hidden.
+    { amount: "some", margin: "0px 0px -8% 0px" },
   );
 
   document
@@ -50,7 +54,7 @@ function reveals() {
             { duration: 0.65, ease: EASE, delay: stagger(0.07) },
           );
         },
-        { amount: 0.15 },
+        { amount: "some" },
       );
     });
 }
@@ -89,7 +93,11 @@ function anchorScroll(lenis: Lenis) {
 }
 
 export function initMotion() {
-  if (!document.documentElement.classList.contains("motion")) return;
+  const root = document.documentElement;
+  // Handshake with the inline failsafe in BaseLayout: proves this module
+  // loaded, so the timer there won't strip `.motion` out from under us.
+  root.setAttribute("data-motion-ready", "");
+  if (!root.classList.contains("motion")) return;
 
   try {
     const lenis = new Lenis({
