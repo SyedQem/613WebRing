@@ -10,7 +10,7 @@ add your own with a single pull request.
 
 **Presented by [Builders Collective Ottawa](https://builderscollective.ca).**
 
-[**→ Join the ring**](#-join-the-ring) · [Live site](https://613-web-ring.vercel.app) · [Contributing](./CONTRIBUTING.md)
+[**→ Join the ring**](#-join-the-ring) · [Live site](https://www.613webring.ca) · [Contributing](./CONTRIBUTING.md)
 
 </div>
 
@@ -30,7 +30,7 @@ seasoned engineers, and people writing their very first lines of code.
 ## 🔗 Join the ring
 
 It takes three small steps and one pull request — full walkthrough in
-**[CONTRIBUTING.md](./CONTRIBUTING.md)** (or the [/join](https://613-web-ring.vercel.app/join) page):
+**[CONTRIBUTING.md](./CONTRIBUTING.md)** (or the [/join](https://www.613webring.ca/join) page):
 
 1. **Add your entry** to the end of the array in [`src/data/members.json`](./src/data/members.json):
 
@@ -52,7 +52,7 @@ It takes three small steps and one pull request — full walkthrough in
    ```html
    <!-- 613 Webring -->
    <div id="webring-613"></div>
-   <script src="https://613-web-ring.vercel.app/widget.js" defer></script>
+   <script src="https://www.613webring.ca/widget.js" defer></script>
    ```
 
 3. **Open a pull request.** Automated checks validate your entry; a maintainer

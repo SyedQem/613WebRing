@@ -4,7 +4,7 @@
  * Drop this on your site to join the loop:
  *
  *   <div id="webring-613"></div>
- *   <script src="https://613-web-ring.vercel.app/widget.js" defer></script>
+ *   <script src="https://www.613webring.ca/widget.js" defer></script>
  *
  * The widget figures out which ring it belongs to from its own <script src>,
  * so it always points back to the right place. It renders inside a Shadow DOM

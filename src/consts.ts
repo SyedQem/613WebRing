@@ -8,7 +8,7 @@
  */
 
 // The production origin (no trailing slash).
-export const SITE_URL = "https://613-web-ring.vercel.app";
+export const SITE_URL = "https://www.613webring.ca";
 
 export const SITE_NAME = "613 Webring";
 export const SITE_TAGLINE =
