@@ -73,5 +73,16 @@
     "blurb": "Chasing 16 sunrises over nominal software. Orbiting momentum.",
     "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJGMYv4H0U3BzoL0dnZhmJBGaYk3JLUapuRAFteKj2VYr_McnJZ=s288-c-no",
     "links": [{ "url": "https://kirbydoestech.dev", "type": "referred" }]
+  },
+   {
+    "name": "Fouad Hammani",
+    "website": "https://fouja.github.io/Portfolio/",
+    "role": "Software AI Engineer",
+    "location": "Ottawa, ON",
+    "tags": ["Full-stack", "Artificial Intelligence", "Harness Engineer", "typescript", "react", "Django", "postgresql", "sdd", "Machine Learning", "Python","Automatisation"],
+    "blurb": "Building the 4th industrial revolution.",
+    
+    "links": [{ "url": "https://salimdellali.com", "type": "referred" }]
   }
+
 ]
