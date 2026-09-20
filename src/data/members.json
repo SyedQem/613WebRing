@@ -73,5 +73,13 @@
     "blurb": "Chasing 16 sunrises over nominal software. Orbiting momentum.",
     "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJGMYv4H0U3BzoL0dnZhmJBGaYk3JLUapuRAFteKj2VYr_McnJZ=s288-c-no",
     "links": [{ "url": "https://kirbydoestech.dev", "type": "referred" }]
+  },
+  {
+    "name": "Aditya Baindur",
+    "website": "https://adityabaindur.dev",
+    "role": "Software Engineer",
+    "location": "Ottawa, ON",
+    "tags": ["full-stack", "typescript", "react", "nextjs", "cloudflare"],
+    "blurb": "Building software systems, full-stack applications, and developer tools."
   }
 ]
