@@ -81,5 +81,13 @@
     "location": "Ottawa, ON",
     "tags": ["full-stack", "typescript", "react", "nextjs", "cloudflare"],
     "blurb": "Building software systems, full-stack applications, and developer tools."
+  },
+  {
+    "name": "Ditah Kumbong",
+    "website": "https:zsoftly.ca",
+    "role": "Founder & CTO, ZSoftly | Technical Lead, Runzivo",
+    "location": "Ottawa, ON",
+    "tags": ["cloud", "devops", "platform-engineering", "go", "kubernetes", "developer-tools"],
+    "blurb": "Building ZCP, a Canadian cloud platform, and Runzivo, isolated CI runners. Based in Ottawa."
   }
 ]
