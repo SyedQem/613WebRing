@@ -81,5 +81,13 @@
     "location": "Ottawa, ON",
     "tags": ["full-stack", "typescript", "react", "nextjs", "cloudflare"],
     "blurb": "Building software systems, full-stack applications, and developer tools."
+  },
+  {
+    "name": "Saim Hashmi",
+    "website": "https://saimhashmi.is-a.dev/",
+    "role": "Computer Systems Engineering @ Carleton",
+    "location": "Ottawa, ON",
+    "tags": ["devops", "kubernetes", "linux", "ci-cd"],
+    "blurb": "Systems & DevOps engineer. I build the layer between code and production."
   }
 ]
