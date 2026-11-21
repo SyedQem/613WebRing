@@ -81,5 +81,14 @@
     "location": "Ottawa, ON",
     "tags": ["full-stack", "typescript", "react", "nextjs", "cloudflare"],
     "blurb": "Building software systems, full-stack applications, and developer tools."
-  }
+  },
+  {
+  "name": "Srivathsan Murali",
+  "website": "https://watson752.github.io/",
+  "role": "AI Developer @ CGI",
+  "location": "Ottawa, ON",
+  "tags": ["ai", "data-science", "full-stack", "systems"],
+  "blurb": "Building away",
+  "links": [{ "url": "https://kirbydoestech.dev", "type": "referred" }]
+}
 ]
