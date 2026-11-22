@@ -90,5 +90,30 @@
   "tags": ["ai", "data-science", "full-stack", "systems"],
   "blurb": "Building away",
   "links": [{ "url": "https://kirbydoestech.dev", "type": "referred" }]
-}
+},
+  {
+    "name": "Saim Hashmi",
+    "website": "https://saimhashmi.is-a.dev/",
+    "role": "Computer Systems Engineering @ Carleton",
+    "location": "Ottawa, ON",
+    "tags": ["devops", "kubernetes", "linux", "ci-cd"],
+    "blurb": "Systems & DevOps engineer. I build the layer between code and production."
+  },
+  {
+    "name": "Ditah Kumbong",
+    "website": "https://zsoftly.ca",
+    "role": "Founder & CTO, ZSoftly | Technical Lead, Runzivo",
+    "location": "Ottawa, ON",
+    "tags": ["cloud", "devops", "platform-engineering", "go", "kubernetes", "developer-tools"],
+    "blurb": "Building ZCP, a Canadian cloud platform, and Runzivo, isolated CI runners. Based in Ottawa."
+  },
+  {
+    "name": "Fouad Hammani",
+    "website": "https://fouja.github.io/Portfolio/",
+    "role": "Software AI Engineer",
+    "location": "Ottawa, ON",
+    "tags": ["Full-stack", "Artificial Intelligence", "Harness Engineer", "typescript", "react", "Django", "postgresql", "sdd", "Machine Learning", "Python"],
+    "blurb": "Building the 4th industrial revolution.",
+    "links": [{ "url": "https://salimdellali.com", "type": "referred" }]
+  }
 ]
