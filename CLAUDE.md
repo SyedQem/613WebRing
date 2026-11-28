@@ -31,7 +31,12 @@ considering work done.
 ## Architecture
 
 **Static, no backend.** Astro with `output: "static"` (see `astro.config.mjs`),
-React only for interactive `.tsx` islands under `src/components/motion/`.
+React only for interactive `.tsx` islands under `src/components/motion/` — today
+that is just `NetworkGraph.tsx` on `/network`. Everything else (boot loader,
+ASCII field, manifesto scene, scroll reveals) is plain Astro markup + a small
+`<script>`, so no other page ships a UI runtime. Keep it that way: don't reach
+for an island or an animation library for something CSS or a few lines of DOM
+code can do.
 
 Two files are the source of truth; most work flows through them:
 
@@ -66,6 +71,37 @@ runs on third-party sites. Keep it that way.
 **Styling:** all colors are CSS custom properties in `src/styles/global.css`
 under a `BRAND TOKENS` block (Ottawa-rooted palette). Theme by editing tokens,
 not component styles.
+
+**Assets:** fonts are self-hosted through Astro's `fonts` config
+(`astro.config.mjs` → `<Font />` in `BaseLayout.astro` → `--font-*` tokens);
+don't add `<link>`s to a font CDN. The logo is rendered by `BcoLogo.astro` via
+`astro:assets` from `src/assets/bco-logo.png`. The copy in `public/` must stay:
+`widget.js` on members' sites links to `/bco-logo.png` directly.
+
+**Motion:** one switch decides whether anything animates — the `motion` class on
+`<html>`, set before paint by the inline script in `BaseLayout.astro` and
+flipped at runtime by the footer's "Pause animations" button
+(`src/lib/motion-pref.ts`). It is off under `prefers-reduced-motion` or when the
+visitor paused. Gate new CSS animation on `html.motion` and new JS animation on
+`motionOn()` / `onMotionChange()`; never start a loop that ignores them, and
+stop loops when off-screen or the tab is hidden.
+
+## Accessibility (WCAG 2.2 AAA)
+
+The site targets AAA; these are the rules that are easy to break:
+
+- **Contrast 7:1** (4.5:1 for large text). `--text`, `--text-muted` and
+  `--text-subtle` are tuned against every surface _and_ against the brightest
+  pixels of the decorative layers behind page copy — which is why the ASCII
+  field's `maxAlpha` (`AsciiField.astro`) and the film grain's opacity
+  (`AmbientBackdrop.astro`) are capped. Changing any of those needs a re-check.
+- **44×44px targets.** `.btn` and nav links have `min-height: var(--tap)`;
+  small controls that should stay visually compact get the `.tap-target` class.
+- **New tabs are announced.** Any `target="_blank"` link ends with
+  `<NewTab />` (or includes "(opens in a new tab)" in its label).
+- **Nothing important moves without an off switch** — see Motion above.
+- Scrollable `<pre>` blocks need `tabindex="0"` + a label; links inside prose
+  are underlined; the current page's nav link gets `aria-current="page"`.
 
 ## Conventions
 
