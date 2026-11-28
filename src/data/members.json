@@ -123,6 +123,6 @@
     "location": "Ottawa, ON",
     "tags": ["Full-stack", "Artificial Intelligence", "TypeScript", "react", "Machine Learning", "Python"],
     "blurb": "Doing things!",
-    "links": [{ "url": "https://watson752.github.io/", "type": "referred" }, { "url": "https://saimhashmi.is-a.dev/", "type": "referred" }]
+    "links": [{ "url": "https://watson752.github.io/", "type": "friend" }, { "url": "https://saimhashmi.is-a.dev/", "type": "friend" }]
   }
 ]
