@@ -28,8 +28,8 @@ const nodes = shown.map((m, i) => {
         {memberCount} sites, one continuous loop.
       </h2>
       <p class="lead" data-reveal="fade">
-        Every node is a builder's personal site. Hover one to see who's there —
-        then jump in anywhere and ride the ring all the way around.
+        Every node is a builder's personal site. Hover or focus one to see who's
+        there — then jump in anywhere and ride the ring all the way around.
       </p>
       <div class="ring-cta" data-reveal>
         <a class="btn" href="#members">Browse the directory</a>
@@ -39,7 +39,14 @@ const nodes = shown.map((m, i) => {
 
     <div class="ring-viz-wrap" data-reveal="fade">
       <div class="ringviz" data-count={memberCount}>
-        <svg viewBox="0 0 400 400" class="ringviz-svg" role="presentation">
+        <!-- Each node is a real link (the same sites as the directory cards
+             further down, which are the full-size targets for these). -->
+        <svg
+          viewBox="0 0 400 400"
+          class="ringviz-svg"
+          role="group"
+          aria-label="Sites in the ring"
+        >
           <circle
             cx={cx}
             cy={cy}
@@ -59,9 +66,10 @@ const nodes = shown.map((m, i) => {
                 data-name={n.name}
                 data-domain={n.domain}
                 data-role={n.role ?? ""}
-                aria-label={`${n.name} — ${n.domain}`}
+                aria-label={`${n.name} — ${n.domain} (opens in a new tab)`}
               >
                 <circle class="node-halo" cx={n.x} cy={n.y} r="16" />
+                <circle class="node-focus" cx={n.x} cy={n.y} r="15" />
                 <circle class="node-dot" cx={n.x} cy={n.y} r="8" />
               </a>
             ))
@@ -72,7 +80,7 @@ const nodes = shown.map((m, i) => {
           <div class="rc-default">
             <span class="rc-count">{memberCount}</span>
             <span class="rc-label">sites in the ring</span>
-            <span class="rc-hint">hover a node</span>
+            <span class="rc-hint">hover or focus a node</span>
           </div>
           <div class="rc-hover" hidden>
             <span class="rc-name"></span>
@@ -137,6 +145,17 @@ const nodes = shown.map((m, i) => {
   .node:focus-visible .node-halo {
     opacity: 0.15;
   }
+  /* Keyboard focus: a solid 2px ring around the node (the default outline
+     would hug the link's bounding box, so we draw our own — WCAG 2.4.13). */
+  .node-focus {
+    fill: none;
+    stroke: var(--accent-hover);
+    stroke-width: 2.5;
+    opacity: 0;
+  }
+  .node:focus-visible .node-focus {
+    opacity: 1;
+  }
   .node:focus-visible {
     outline: none;
   }
@@ -192,10 +211,6 @@ const nodes = shown.map((m, i) => {
     font-size: 0.78rem;
     color: var(--text-subtle);
   }
-  [hidden] {
-    display: none !important;
-  }
-
   @media (max-width: 860px) {
     .ring-grid {
       grid-template-columns: 1fr;

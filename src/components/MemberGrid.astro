@@ -26,7 +26,12 @@ const searchList = members.map((m) => ({
       </p>
     </header>
 
-    <div class="md-controls" data-reveal>
+    <div
+      class="md-controls"
+      role="search"
+      aria-label="Member directory"
+      data-reveal
+    >
       <label class="search" for="member-search">
         <svg
           width="18"
@@ -56,7 +61,7 @@ const searchList = members.map((m) => ({
         allTags.length > 0 && (
           <div class="md-tags" role="group" aria-label="Filter by tag">
             <button
-              class="chip is-active"
+              class="chip tap-target is-active"
               type="button"
               data-tag=""
               aria-pressed="true"
@@ -65,7 +70,7 @@ const searchList = members.map((m) => ({
             </button>
             {allTags.map((t) => (
               <button
-                class="chip"
+                class="chip tap-target"
                 type="button"
                 data-tag={t}
                 aria-pressed="false"
@@ -78,7 +83,7 @@ const searchList = members.map((m) => ({
       }
     </div>
 
-    <p class="md-count" id="member-count" aria-live="polite">
+    <p class="md-count" id="member-count" role="status">
       Showing all {memberCount} sites
     </p>
 
@@ -121,13 +126,18 @@ const searchList = members.map((m) => ({
     max-width: 380px;
     padding: 0.7rem 1rem;
     background: var(--surface);
-    border: 1px solid var(--border-strong);
+    /* A field's edge is what identifies it, so it needs 3:1 (WCAG 1.4.11). */
+    border: 1px solid var(--border-ui);
     border-radius: 999px;
     color: var(--text-subtle);
     transition: border-color 0.18s var(--ease);
   }
+  /* The input's own outline is suppressed, so the pill carries the focus ring
+     — the same 2px ring every other control gets (WCAG 2.4.13). */
   .search:focus-within {
     border-color: var(--blue);
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
   }
   .search input {
     border: none;
@@ -137,15 +147,23 @@ const searchList = members.map((m) => ({
     font: inherit;
     color: var(--text);
   }
+  .search input::placeholder {
+    color: var(--text-subtle);
+    opacity: 1;
+  }
+  /* Chips keep their compact look; `.tap-target` stretches each one's hit
+     area to 44px, and the row gap leaves room so those areas never overlap. */
   .md-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 1rem 0.4rem;
+    padding-block: 0.45rem;
   }
   .chip {
     font-family: var(--font-mono);
     font-size: 0.74rem;
     letter-spacing: 0.02em;
+    min-width: var(--tap);
     padding: 0.38rem 0.75rem;
     border-radius: 999px;
     border: 1px solid var(--border-strong);
@@ -179,17 +197,16 @@ const searchList = members.map((m) => ({
     gap: 1.1rem;
   }
   .md-empty {
+    max-width: 60ch;
+    margin-inline: auto;
     text-align: center;
     color: var(--text-muted);
     padding: 2.5rem 1rem;
   }
-  [hidden] {
-    display: none !important;
-  }
 </style>
 
 <script>
-  import Fuse from "fuse.js";
+  import type Fuse from "fuse.js";
 
   type Entry = {
     id: string;
@@ -217,26 +234,46 @@ const searchList = members.map((m) => ({
       document.querySelectorAll<HTMLButtonElement>(".chip"),
     );
 
-    const fuse = new Fuse(entries, {
-      keys: [
-        { name: "name", weight: 3 },
-        { name: "role", weight: 2 },
-        { name: "tags", weight: 2 },
-        { name: "domain", weight: 1 },
-        { name: "blurb", weight: 1 },
-      ],
-      threshold: 0.38,
-      ignoreLocation: true,
-    });
+    // The fuzzy-search library is only needed once someone actually searches,
+    // so it is fetched on first interest (focus / hover) instead of on every
+    // page load.
+    let fuse: Fuse<Entry> | null = null;
+    let loading: Promise<void> | null = null;
+    const loadFuse = () =>
+      (loading ??= import("fuse.js").then(({ default: FuseCtor }) => {
+        fuse = new FuseCtor(entries, {
+          keys: [
+            { name: "name", weight: 3 },
+            { name: "role", weight: 2 },
+            { name: "tags", weight: 2 },
+            { name: "domain", weight: 1 },
+            { name: "blurb", weight: 1 },
+          ],
+          threshold: 0.38,
+          ignoreLocation: true,
+        });
+      }));
 
     let query = "";
     let activeTag = "";
 
+    /** Ids matching the query, or null for "no query — everything matches". */
+    const search = (): Set<string> | null => {
+      const q = query.trim();
+      if (!q) return null;
+      if (fuse) return new Set(fuse.search(q).map((r) => r.item.id));
+      // Library still on its way: plain substring match for now; `apply` runs
+      // again with fuzzy results the moment it lands.
+      const needle = q.toLowerCase();
+      return new Set(
+        cards
+          .filter((c) => (c.dataset.search || "").includes(needle))
+          .map((c) => c.dataset.id || ""),
+      );
+    };
+
     const apply = () => {
-      const matchIds =
-        query.trim().length > 0
-          ? new Set(fuse.search(query).map((r) => r.item.id))
-          : null;
+      const matchIds = search();
 
       let visible = 0;
       for (const card of cards) {
@@ -256,9 +293,12 @@ const searchList = members.map((m) => ({
           : `Showing ${visible} of ${total} sites`;
     };
 
+    input.addEventListener("focus", loadFuse, { once: true });
+    input.addEventListener("pointerenter", loadFuse, { once: true });
     input.addEventListener("input", () => {
       query = input.value;
       apply();
+      if (!fuse) loadFuse().then(apply, () => {});
     });
 
     for (const chip of chips) {

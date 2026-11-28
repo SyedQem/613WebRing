@@ -55,9 +55,9 @@ const navList = members.map((m) => ({ origin: m.origin, website: m.website }));
     })();
   </script>
 
-  <section class="nav-page">
+  <main class="nav-page">
     <div class="nav-card">
-      <BcoLogo size={48} class="nav-mark" />
+      <BcoLogo size={48} class="nav-mark" alt="" eager />
 
       <div class="when-redirecting">
         <div class="spinner" aria-hidden="true"></div>
@@ -76,11 +76,11 @@ const navList = members.map((m) => ({ origin: m.origin, website: m.website }));
 
       <div class="nav-actions">
         <a class="btn btn-primary" href="/">Visit the 613 Webring</a>
-        <a class="btn" href="/nav?dir=random">Surprise me</a>
+        <a class="btn" href="/nav?dir=random">Hop to a random site</a>
         <a class="btn" href="/join">Join the ring</a>
       </div>
     </div>
-  </section>
+  </main>
 </BaseLayout>
 
 <style>
@@ -94,15 +94,11 @@ const navList = members.map((m) => ({ origin: m.origin, website: m.website }));
   .nav-card {
     max-width: 32rem;
   }
-  .nav-mark {
-    display: block;
-    margin-inline: auto;
-    margin-bottom: 1rem;
-  }
-  .nav-mark :global(.bco-logo) {
+  .nav-card :global(.nav-mark) {
     width: 48px;
     height: 48px;
     margin-inline: auto;
+    margin-bottom: 1rem;
   }
   .nav-card h1 {
     font-size: clamp(1.4rem, 4vw, 1.9rem);

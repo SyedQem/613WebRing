@@ -1,5 +1,6 @@
 ---
 import BcoLogo from "./BcoLogo.astro";
+import NewTab from "./NewTab.astro";
 import {
   SITE_NAME,
   SITE_TAGLINE,
@@ -14,33 +15,35 @@ const year = new Date().getFullYear();
   <div class="container footer-inner">
     <div class="footer-brand">
       <a class="footer-mark" href="/" aria-label={`${SITE_NAME} — home`}>
-        <BcoLogo size={32} />
+        <BcoLogo size={32} alt="" />
         <span class="footer-wordmark"><span class="m">613</span>/WEBRING</span>
       </a>
       <p class="footer-tag">{SITE_TAGLINE}</p>
       <p class="footer-bco">
         Presented by <a href={BCO.url} target="_blank" rel="noopener noreferrer"
-          >{BCO.name}</a
+          >{BCO.name}<NewTab /></a
         >
       </p>
     </div>
 
-    <nav class="footer-links" aria-label="Footer">
-      <span class="footer-links-title">Explore</span>
+    <nav class="footer-links" aria-labelledby="footer-explore">
+      <h2 class="footer-links-title" id="footer-explore">Explore</h2>
       <a href="/#members">Members</a>
       <a href="/#ring">The ring</a>
+      <a href="/network">Network</a>
       <a href="/join">Join</a>
       <a href={REPO_URL} target="_blank" rel="noopener noreferrer"
-        >Source on GitHub</a
+        >Source on GitHub<NewTab /></a
       >
     </nav>
 
-    <nav class="footer-links" aria-label="Community">
-      <span class="footer-links-title">Community</span>
+    <nav class="footer-links" aria-labelledby="footer-community">
+      <h2 class="footer-links-title" id="footer-community">Community</h2>
       {
         SOCIAL_LINKS.map((s) => (
           <a href={s.href} target="_blank" rel="noopener noreferrer">
             {s.label}
+            <NewTab />
           </a>
         ))
       }
@@ -49,9 +52,42 @@ const year = new Date().getFullYear();
 
   <div class="container footer-bottom">
     <span>© {year} {SITE_NAME}</span>
+    <!-- Stops every ambient / scroll animation on the site (WCAG 2.2.2 &
+         2.3.3). Hidden until the script confirms there is motion to control;
+         see src/lib/motion-pref.ts. -->
+    <button class="motion-toggle" id="motion-toggle" type="button" hidden>
+      <span class="motion-toggle-icon" aria-hidden="true"></span>
+      <span class="motion-toggle-label">Pause animations</span>
+    </button>
     <span class="footer-area">Ottawa, Ontario · 613</span>
   </div>
 </footer>
+
+<script>
+  import {
+    motionOn,
+    osReducedMotion,
+    pageHasMotion,
+    setMotion,
+  } from "../lib/motion-pref";
+
+  const btn = document.getElementById("motion-toggle");
+  const label = btn?.querySelector(".motion-toggle-label");
+  // With the OS already asking for reduced motion there is nothing to pause.
+  if (btn && label && pageHasMotion() && !osReducedMotion()) {
+    const render = () => {
+      const on = motionOn();
+      label.textContent = on ? "Pause animations" : "Play animations";
+      btn.dataset.state = on ? "playing" : "paused";
+    };
+    render();
+    btn.hidden = false;
+    btn.addEventListener("click", () => {
+      setMotion(!motionOn());
+      render();
+    });
+  }
+</script>
 
 <style>
   .footer {
@@ -74,6 +110,7 @@ const year = new Date().getFullYear();
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
+    min-height: var(--tap);
     color: var(--text);
   }
   .footer-mark :global(.bco-logo) {
@@ -112,16 +149,23 @@ const year = new Date().getFullYear();
   .footer-links {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    align-items: flex-start;
   }
   .footer-links-title {
+    font-family: var(--font-sans);
     font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.65;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--text-subtle);
     margin-bottom: 0.2rem;
   }
   .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    min-width: var(--tap);
     color: var(--text-muted);
     font-size: 0.95rem;
   }
@@ -133,11 +177,45 @@ const year = new Date().getFullYear();
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1.5rem;
+    align-items: center;
     justify-content: space-between;
-    padding-block: 1.4rem;
+    padding-block: 1rem;
     border-top: 1px solid var(--border);
     color: var(--text-subtle);
     font-size: 0.85rem;
+  }
+  .motion-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--tap);
+    padding: 0 0.9rem;
+    font: inherit;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border-ui);
+    border-radius: 999px;
+    cursor: pointer;
+    transition:
+      color 0.18s var(--ease),
+      border-color 0.18s var(--ease);
+  }
+  .motion-toggle:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+  }
+  /* Pause bars while playing, a play triangle while paused. */
+  .motion-toggle-icon {
+    width: 9px;
+    height: 10px;
+    border-inline: 3px solid currentColor;
+  }
+  .motion-toggle[data-state="paused"] .motion-toggle-icon {
+    width: 0;
+    height: 0;
+    border-block: 5px solid transparent;
+    border-inline: 9px solid currentColor;
+    border-inline-end-width: 0;
   }
   @media (max-width: 720px) {
     .footer-inner {

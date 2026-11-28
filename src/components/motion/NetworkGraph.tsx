@@ -1,23 +1,43 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { EdgeType, NetworkEdge, NetworkNode } from "../../lib/members";
+import { motionOn, onMotionChange } from "../../lib/motion-pref";
 
+// Same steps as MemberCard.astro: the lightest still gives the monogram 7:1.
 const PALETTE = [
   "#1c1c1c",
-  "#2a2a2a",
-  "#383838",
-  "#4a4a4a",
-  "#5c5c5c",
-  "#707070",
+  "#262626",
+  "#303030",
+  "#3a3a3a",
+  "#444444",
+  "#4c4c4c",
 ];
 
-/** Edge colour + legend label per relationship type. */
-const EDGE_STYLE: Record<EdgeType, { color: string; label: string }> = {
+/**
+ * Edge colour, dash pattern and legend label per relationship type. The dash
+ * pattern means the types can be told apart without relying on colour
+ * (WCAG 1.4.1).
+ */
+const EDGE_STYLE: Record<
+  EdgeType,
+  { color: string; dash?: string; label: string }
+> = {
   referred: { color: "var(--rel-referred)", label: "Referred" },
-  collaborator: { color: "var(--rel-collaborator)", label: "Collaborator" },
-  mentor: { color: "var(--rel-mentor)", label: "Mentor" },
-  friend: { color: "var(--rel-friend)", label: "Friend" },
+  collaborator: {
+    color: "var(--rel-collaborator)",
+    dash: "9 4",
+    label: "Collaborator",
+  },
+  mentor: { color: "var(--rel-mentor)", dash: "2 4", label: "Mentor" },
+  friend: { color: "var(--rel-friend)", dash: "9 4 2 4", label: "Friend" },
   connection: { color: "var(--node-line)", label: "Connection" },
 };
+
+/** Smallest comfortable pointer target, as a radius (WCAG 2.5.5: 44px). */
+const MIN_HIT_RADIUS = 22;
+/** Arrow-key step when moving a focused node. */
+const NUDGE = 16;
+/** Pointer travel (px) beyond which a press counts as a drag, not a click. */
+const DRAG_SLOP = 4;
 
 const EDGE_TYPES: EdgeType[] = [
   "referred",
@@ -90,6 +110,84 @@ function nodeRadius(degree: number): number {
   return 14 + Math.min(degree, 6) * 2;
 }
 
+/**
+ * One step of the force layout, mutating `sim` in place. Returns the fastest
+ * node's speed so the caller can tell when the layout has come to rest.
+ */
+function stepSimulation(
+  sim: SimNode[],
+  links: [SimNode, SimNode][],
+  w: number,
+  h: number,
+  dragId: string | null,
+): number {
+  const cx = w / 2;
+  const cy = h / 2;
+
+  for (let i = 0; i < sim.length; i++) {
+    for (let j = i + 1; j < sim.length; j++) {
+      const a = sim[i];
+      const b = sim[j];
+      let dx = b.x - a.x;
+      let dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const force = 4200 / (dist * dist);
+      dx = (dx / dist) * force;
+      dy = (dy / dist) * force;
+      if (a.id !== dragId) {
+        a.vx -= dx;
+        a.vy -= dy;
+      }
+      if (b.id !== dragId) {
+        b.vx += dx;
+        b.vy += dy;
+      }
+    }
+  }
+
+  for (const [a, b] of links) {
+    let dx = b.x - a.x;
+    let dy = b.y - a.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    const ideal = 120 + nodeRadius(a.degree) + nodeRadius(b.degree);
+    const force = (dist - ideal) * 0.04;
+    dx = (dx / dist) * force;
+    dy = (dy / dist) * force;
+    if (a.id !== dragId) {
+      a.vx += dx;
+      a.vy += dy;
+    }
+    if (b.id !== dragId) {
+      b.vx -= dx;
+      b.vy -= dy;
+    }
+  }
+
+  let fastest = 0;
+  for (const n of sim) {
+    if (n.id === dragId) continue;
+    n.vx += (cx - n.x) * 0.002;
+    n.vy += (cy - n.y) * 0.002;
+    n.vx *= 0.82;
+    n.vy *= 0.82;
+    const x = Math.max(40, Math.min(w - 40, n.x + n.vx));
+    const y = Math.max(40, Math.min(h - 40, n.y + n.vy));
+    fastest = Math.max(fastest, Math.hypot(x - n.x, y - n.y));
+    n.x = x;
+    n.y = y;
+  }
+  return fastest;
+}
+
+/**
+ * Below this speed (px per step) the layout counts as settled. The forces have
+ * a long, barely visible tail — the last 0.1px/frame of drift would otherwise
+ * keep the loop (and a React render per frame) alive for several more seconds.
+ */
+const REST_SPEED = 0.1;
+/** Safety net: never animate one run for longer than this many frames. */
+const MAX_STEPS = 1500;
+
 export default function NetworkGraph({ nodes, edges }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 800, h: 520 });
@@ -97,8 +195,16 @@ export default function NetworkGraph({ nodes, edges }: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const draggingRef = useRef<string | null>(null);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const draggedRef = useRef(false);
   const simRef = useRef<SimNode[]>([]);
+  const linksRef = useRef<[SimNode, SimNode][]>([]);
+  const sizeRef = useRef(size);
   const rafRef = useRef<number>(0);
+  const runningRef = useRef(false);
+  const visibleRef = useRef(true);
+  /** Wakes the layout loop after something disturbs it (drag, nudge, resize). */
+  const kickRef = useRef<() => void>(() => {});
 
   const degreeMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -164,101 +270,128 @@ export default function NetworkGraph({ nodes, edges }: Props) {
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      if (width > 0 && height > 0) setSize({ w: width, h: height });
+      if (width > 0 && height > 0)
+        setSize((prev) =>
+          prev.w === width && prev.h === height
+            ? prev
+            : { w: width, h: height },
+        );
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
+  // Seed the layout: every node on a circle. Runs when the data changes.
   useEffect(() => {
-    const cx = size.w / 2;
-    const cy = size.h / 2;
-    const spread = Math.min(size.w, size.h) * 0.32;
+    const { w, h } = sizeRef.current;
+    const spread = Math.min(w, h) * 0.32;
     const initial: SimNode[] = nodes.map((n, i) => {
       const angle = (2 * Math.PI * i) / nodes.length;
       return {
         ...n,
-        x: cx + spread * Math.cos(angle),
-        y: cy + spread * Math.sin(angle),
+        x: w / 2 + spread * Math.cos(angle),
+        y: h / 2 + spread * Math.sin(angle),
         vx: 0,
         vy: 0,
         degree: degreeMap.get(n.id) ?? 0,
       };
     });
+    const byId = new Map(initial.map((n) => [n.id, n]));
     simRef.current = initial;
-    setSimNodes(initial);
-  }, [nodes, edges, size.w, size.h, degreeMap]);
+    linksRef.current = edges.flatMap((e) => {
+      const a = byId.get(e.source);
+      const b = byId.get(e.target);
+      return a && b ? [[a, b] as [SimNode, SimNode]] : [];
+    });
+    setSimNodes([...initial]);
+    kickRef.current();
+  }, [nodes, edges, degreeMap]);
 
+  // On resize, keep the arrangement and just rescale it into the new box
+  // (re-seeding here would throw the layout away every time a phone's URL bar
+  // slides in or out).
   useEffect(() => {
-    const cx = size.w / 2;
-    const cy = size.h / 2;
+    const prev = sizeRef.current;
+    sizeRef.current = size;
+    if (prev.w === size.w && prev.h === size.h) return;
+    for (const n of simRef.current) {
+      n.x = (n.x / prev.w) * size.w;
+      n.y = (n.y / prev.h) * size.h;
+    }
+    setSimNodes([...simRef.current]);
+    kickRef.current();
+  }, [size]);
 
+  // The layout loop. It animates only while the graph is actually moving, on
+  // screen and in a visible tab, then stops — it used to run (and re-render the
+  // whole SVG) 60 times a second forever. With motion off it jumps straight to
+  // the settled layout instead of animating towards it.
+  useEffect(() => {
+    const step = () =>
+      stepSimulation(
+        simRef.current,
+        linksRef.current,
+        sizeRef.current.w,
+        sizeRef.current.h,
+        draggingRef.current,
+      );
+
+    const stop = () => {
+      runningRef.current = false;
+      cancelAnimationFrame(rafRef.current);
+    };
+
+    let steps = 0;
     const tick = () => {
-      const sim = simRef.current;
-      const dragId = draggingRef.current;
-
-      for (let i = 0; i < sim.length; i++) {
-        for (let j = i + 1; j < sim.length; j++) {
-          const a = sim[i];
-          const b = sim[j];
-          let dx = b.x - a.x;
-          let dy = b.y - a.y;
-          let dist = Math.hypot(dx, dy) || 1;
-          const minDist = nodeRadius(a.degree) + nodeRadius(b.degree) + 24;
-          const force = 4200 / (dist * dist);
-          dx = (dx / dist) * force;
-          dy = (dy / dist) * force;
-          if (a.id !== dragId) {
-            a.vx -= dx;
-            a.vy -= dy;
-          }
-          if (b.id !== dragId) {
-            b.vx += dx;
-            b.vy += dy;
-          }
-        }
+      if (!runningRef.current) return;
+      const fastest = step();
+      setSimNodes([...simRef.current]);
+      const dragging = draggingRef.current !== null;
+      if (dragging) steps = 0;
+      if (!dragging && (fastest < REST_SPEED || ++steps > MAX_STEPS)) {
+        runningRef.current = false;
+        return;
       }
-
-      for (const edge of edges) {
-        const a = sim.find((n) => n.id === edge.source);
-        const b = sim.find((n) => n.id === edge.target);
-        if (!a || !b) continue;
-        let dx = b.x - a.x;
-        let dy = b.y - a.y;
-        let dist = Math.hypot(dx, dy) || 1;
-        const ideal = 120 + nodeRadius(a.degree) + nodeRadius(b.degree);
-        const force = (dist - ideal) * 0.04;
-        dx = (dx / dist) * force;
-        dy = (dy / dist) * force;
-        if (a.id !== dragId) {
-          a.vx += dx;
-          a.vy += dy;
-        }
-        if (b.id !== dragId) {
-          b.vx -= dx;
-          b.vy -= dy;
-        }
-      }
-
-      for (const n of sim) {
-        if (n.id === dragId) continue;
-        n.vx += (cx - n.x) * 0.002;
-        n.vy += (cy - n.y) * 0.002;
-        n.vx *= 0.82;
-        n.vy *= 0.82;
-        n.x += n.vx;
-        n.y += n.vy;
-        n.x = Math.max(40, Math.min(size.w - 40, n.x));
-        n.y = Math.max(40, Math.min(size.h - 40, n.y));
-      }
-
-      setSimNodes([...sim]);
       rafRef.current = requestAnimationFrame(tick);
     };
 
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [edges, size.w, size.h]);
+    const kick = () => {
+      if (!simRef.current.length) return;
+      if (!motionOn()) {
+        stop();
+        // Mid-drag the node simply follows the pointer; settle on release.
+        if (draggingRef.current) return;
+        for (let i = 0; i < MAX_STEPS && step() >= REST_SPEED; i++);
+        setSimNodes([...simRef.current]);
+        return;
+      }
+      if (runningRef.current || !visibleRef.current || document.hidden) return;
+      runningRef.current = true;
+      steps = 0;
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    kickRef.current = kick;
+
+    const el = containerRef.current;
+    const io = new IntersectionObserver((entries) => {
+      visibleRef.current = entries[entries.length - 1].isIntersecting;
+      if (visibleRef.current) kick();
+      else stop();
+    });
+    if (el) io.observe(el);
+    const onVisibility = () => (document.hidden ? stop() : kick());
+    document.addEventListener("visibilitychange", onVisibility);
+    const offMotion = onMotionChange(kick);
+
+    kick();
+    return () => {
+      stop();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      offMotion();
+      kickRef.current = () => {};
+    };
+  }, []);
 
   const getPointerPos = useCallback(
     (clientX: number, clientY: number) => {
@@ -278,12 +411,22 @@ export default function NetworkGraph({ nodes, edges }: Props) {
   const onPointerDown = (id: string, e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     draggingRef.current = id;
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    draggedRef.current = false;
     setFocusedId(id);
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
     const id = draggingRef.current;
     if (!id) return;
+    const from = dragStartRef.current;
+    if (
+      !draggedRef.current &&
+      from &&
+      Math.hypot(e.clientX - from.x, e.clientY - from.y) < DRAG_SLOP
+    )
+      return;
+    draggedRef.current = true;
     const { x, y } = getPointerPos(e.clientX, e.clientY);
     const sim = simRef.current;
     const node = sim.find((n) => n.id === id);
@@ -293,15 +436,61 @@ export default function NetworkGraph({ nodes, edges }: Props) {
       node.vx = 0;
       node.vy = 0;
       setSimNodes([...sim]);
+      kickRef.current();
     }
   };
 
   const onPointerUp = () => {
     draggingRef.current = null;
+    kickRef.current();
   };
 
-  const openWebsite = (node: SimNode) => {
-    window.open(node.website, "_blank", "noopener,noreferrer");
+  /** A drag ends in a click event too — don't follow the link for those. */
+  const onNodeClick = (e: React.MouseEvent) => {
+    if (draggedRef.current) e.preventDefault();
+    draggedRef.current = false;
+  };
+
+  /** Arrow keys move the focused node: the keyboard's version of dragging. */
+  const onNodeKeyDown = (id: string, e: React.KeyboardEvent) => {
+    const delta: Record<string, [number, number]> = {
+      ArrowLeft: [-NUDGE, 0],
+      ArrowRight: [NUDGE, 0],
+      ArrowUp: [0, -NUDGE],
+      ArrowDown: [0, NUDGE],
+    };
+    const d = delta[e.key];
+    if (!d) return;
+    e.preventDefault();
+    const node = simRef.current.find((n) => n.id === id);
+    if (!node) return;
+    const { w, h } = sizeRef.current;
+    node.x = Math.max(40, Math.min(w - 40, node.x + d[0]));
+    node.y = Math.max(40, Math.min(h - 40, node.y + d[1]));
+    node.vx = 0;
+    node.vy = 0;
+    setSimNodes([...simRef.current]);
+    kickRef.current();
+  };
+
+  /** Everything a screen reader should hear for a node, in one label. */
+  const nodeLabel = (n: SimNode) => {
+    const conns: string[] = [];
+    for (const e of edges) {
+      if (e.source === n.id)
+        conns.push(phraseOutgoing(e.type, nameById.get(e.target) ?? e.target));
+      else if (e.target === n.id)
+        conns.push(phraseIncoming(e.type, nameById.get(e.source) ?? e.source));
+    }
+    // Leads with the initials drawn on the node: a control's name has to
+    // contain the text shown on it (WCAG 2.5.3), e.g. for voice control.
+    const initials = monogram(n.name);
+    return (
+      (initials ? `${initials}: ` : "") +
+      `${n.name}, ${n.domain}. ` +
+      (conns.length ? `${conns.join("; ")}. ` : "") +
+      "Opens in a new tab."
+    );
   };
 
   const summary = `${nodes.length} builders, ${edges.length} connections`;
@@ -311,8 +500,8 @@ export default function NetworkGraph({ nodes, edges }: Props) {
       <svg
         viewBox={`0 0 ${size.w} ${size.h}`}
         className="network-graph-svg"
-        role="img"
-        aria-label={`Ottawa builder network: ${summary}`}
+        role="group"
+        aria-label={`Ottawa builder network: ${summary}. Each node is a link to that builder's site; arrow keys move the focused node.`}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
@@ -358,6 +547,7 @@ export default function NetworkGraph({ nodes, edges }: Props) {
               x2={x2}
               y2={y2}
               stroke={EDGE_STYLE[e.type].color}
+              strokeDasharray={EDGE_STYLE[e.type].dash}
               className={`ng-edge${active ? " ng-edge-active" : ""}${
                 dimmed ? " ng-edge-dim" : ""
               }`}
@@ -370,8 +560,12 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           const r = nodeRadius(n.degree);
           const active = n.id === activeId;
           return (
-            <g
+            <a
               key={n.id}
+              href={n.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              draggable={false}
               className={`ng-node${active ? " ng-node-active" : ""}`}
               transform={`translate(${n.x}, ${n.y})`}
               onPointerDown={(e) => onPointerDown(n.id, e)}
@@ -379,28 +573,26 @@ export default function NetworkGraph({ nodes, edges }: Props) {
               onMouseLeave={() => setHoveredId(null)}
               onFocus={() => setFocusedId(n.id)}
               onBlur={() => setFocusedId(null)}
-              onClick={() => openWebsite(n)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  openWebsite(n);
-                }
-              }}
-              tabIndex={0}
-              role="button"
-              aria-label={`${n.name}, ${n.domain}`}
+              onClick={onNodeClick}
+              onDragStart={(e) => e.preventDefault()}
+              onKeyDown={(e) => onNodeKeyDown(n.id, e)}
+              aria-label={nodeLabel(n)}
             >
+              {/* Invisible, but keeps every node a 44px target. */}
+              <circle className="ng-hit" r={Math.max(r + 6, MIN_HIT_RADIUS)} />
               <circle className="ng-halo" r={r + 6} />
               <circle className="ng-dot" r={r} fill={swatchFor(n.name)} />
-              <text className="ng-label" y={1}>
+              <text className="ng-label" y={1} aria-hidden="true">
                 {monogram(n.name) || "·"}
               </text>
-            </g>
+            </a>
           );
         })}
       </svg>
 
-      <div className="ng-panel" aria-live="polite">
+      {/* A visual echo of the hovered / focused node. Screen readers get the
+          same facts from each node's own label, so this stays out of their way. */}
+      <div className="ng-panel" aria-hidden="true">
         {activeNode ? (
           <>
             <span className="ng-panel-name">{activeNode.name}</span>
@@ -427,7 +619,7 @@ export default function NetworkGraph({ nodes, edges }: Props) {
                 ))}
               </ul>
             )}
-            <span className="ng-panel-hint">Click to visit site</span>
+            <span className="ng-panel-hint">Select to visit site</span>
           </>
         ) : (
           <>
@@ -444,10 +636,16 @@ export default function NetworkGraph({ nodes, edges }: Props) {
         <div className="ng-legend" aria-hidden="true">
           {presentTypes.map((t) => (
             <span key={t} className="ng-legend-item">
-              <span
-                className="ng-legend-dot"
-                style={{ background: EDGE_STYLE[t].color }}
-              />
+              <svg className="ng-legend-line" viewBox="0 0 26 6">
+                <line
+                  x1="1"
+                  y1="3"
+                  x2="25"
+                  y2="3"
+                  stroke={EDGE_STYLE[t].color}
+                  strokeDasharray={EDGE_STYLE[t].dash}
+                />
+              </svg>
               {EDGE_STYLE[t].label}
             </span>
           ))}
@@ -459,6 +657,7 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           position: relative;
           width: 100%;
           height: min(72vh, 560px);
+          height: min(72svh, 560px);
           min-height: 360px;
           background: var(--surface);
           border: 1px solid var(--border);
@@ -469,14 +668,12 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           display: block;
           width: 100%;
           height: 100%;
-          touch-action: none;
-          cursor: grab;
-        }
-        .network-graph-svg:active {
-          cursor: grabbing;
+          /* Swiping the empty canvas scrolls the page; only a node itself
+             captures the gesture (for dragging). */
+          touch-action: pan-y;
         }
         .ng-edge {
-          stroke-width: 1.2;
+          stroke-width: 1.4;
           opacity: 0.85;
           transition:
             opacity 0.15s var(--ease),
@@ -490,8 +687,15 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           opacity: 0.14;
         }
         .ng-node {
-          cursor: pointer;
+          cursor: grab;
           outline: none;
+          touch-action: none;
+        }
+        .ng-node:active {
+          cursor: grabbing;
+        }
+        .ng-hit {
+          fill: transparent;
         }
         .ng-node:focus-visible .ng-halo {
           stroke: var(--accent);
@@ -608,10 +812,10 @@ export default function NetworkGraph({ nodes, edges }: Props) {
           font-size: 0.74rem;
           color: var(--text-muted);
         }
-        .ng-legend-dot {
-          width: 9px;
-          height: 2px;
-          border-radius: 2px;
+        .ng-legend-line {
+          width: 26px;
+          height: 6px;
+          stroke-width: 2;
         }
       `}</style>
     </div>

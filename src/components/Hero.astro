@@ -1,5 +1,6 @@
 ---
 import BcoLogo from "./BcoLogo.astro";
+import NewTab from "./NewTab.astro";
 import { memberCount } from "../lib/members";
 import { BCO } from "../consts";
 ---
@@ -12,25 +13,27 @@ import { BCO } from "../consts";
           Presented by <a
             href={BCO.url}
             target="_blank"
-            rel="noopener noreferrer">{BCO.name}</a
+            rel="noopener noreferrer">{BCO.name}<NewTab /></a
           >
         </p>
 
-        <h1 class="hero-title" data-reveal>
+        <!-- Above the fold: `data-reveal-eager` animates with CSS alone, so
+             the headline paints without waiting for any script. -->
+        <h1 class="hero-title" data-reveal-eager>
           Ottawa's builders,<br />linked in a ring.
         </h1>
 
-        <p class="hero-lead lead" data-reveal>
+        <p class="hero-lead lead" data-reveal-eager>
           A loop of personal sites from engineers, designers, and coders in the
           613. Hop from one to the next — or add yours with a pull request.
         </p>
 
-        <div class="hero-cta" data-reveal>
+        <div class="hero-cta" data-reveal-eager>
           <a class="btn btn-primary" href="/join">Join the ring</a>
           <a class="btn" href="#members">Browse members</a>
         </div>
 
-        <dl class="hero-stats" data-reveal-stagger>
+        <dl class="hero-stats" data-reveal-eager="stagger">
           <div class="stat">
             <dt>In the ring</dt>
             <dd>{memberCount} sites</dd>
@@ -75,7 +78,7 @@ import { BCO } from "../consts";
               stroke="rgba(255, 255, 255, 0.1)"
               stroke-width="0.3"></circle>
           </svg>
-          <BcoLogo size={440} class="hero-logo" />
+          <BcoLogo size={440} class="hero-logo" priority />
         </div>
       </div>
     </div>
@@ -192,6 +195,14 @@ import { BCO } from "../consts";
     z-index: 0;
     pointer-events: none;
   }
+  /* Spin the whole <svg>, not the dashed circle inside it. The two solid
+     circles are rotation-symmetric so it looks identical — but an element-level
+     transform runs on the compositor, whereas animating an SVG child repaints
+     the ring (and its drop-shadow filter) on the main thread every frame. */
+  :global(html.motion) .hero-ring {
+    animation: hero-ring-spin 44s linear infinite;
+    will-change: transform;
+  }
   .hero-ring circle {
     fill: none;
   }
@@ -208,9 +219,6 @@ import { BCO } from "../consts";
     stroke-width: 0.5;
     stroke-linecap: round;
     stroke-dasharray: 1.4 5.5;
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: hero-ring-spin 44s linear infinite;
     filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.12));
   }
   @keyframes hero-ring-spin {
@@ -226,11 +234,6 @@ import { BCO } from "../consts";
     .hero-mark {
       order: -1;
       max-width: 300px;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-ring-dashed {
-      animation: none;
     }
   }
 </style>

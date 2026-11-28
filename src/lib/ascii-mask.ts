@@ -12,21 +12,34 @@ export type Mask = {
   data: Float32Array;
 };
 
-let imagePromise: Promise<HTMLImageElement> | null = null;
+const imageCache = new Map<string, Promise<HTMLImageElement>>();
 const maskCache = new Map<string, Mask>();
 
 function loadImage(src: string): Promise<HTMLImageElement> {
-  if (!imagePromise) {
-    imagePromise = new Promise((resolve, reject) => {
+  let pending = imageCache.get(src);
+  if (!pending) {
+    pending = new Promise((resolve, reject) => {
       const img = new Image();
-      img.crossOrigin = "anonymous";
+      // No `crossOrigin`: the source is same-origin, and asking for CORS mode
+      // makes the browser fetch the file a second time instead of reusing the
+      // copy the page's <img> tags already downloaded.
       img.decoding = "async";
       img.onload = () => resolve(img);
       img.onerror = reject;
       img.src = src;
     });
+    imageCache.set(src, pending);
   }
-  return imagePromise;
+  return pending;
+}
+
+/**
+ * Where the mask image lives. Components that paint the mark put a
+ * `data-mask-src` on their canvas (a ~130px build-time rendition of the logo —
+ * the grid is only a few dozen cells wide, so anything bigger is wasted bytes).
+ */
+export function maskSrcOf(el: HTMLElement | null | undefined): string {
+  return el?.dataset.maskSrc || "/bco-logo.png";
 }
 
 /**

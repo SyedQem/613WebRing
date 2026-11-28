@@ -1,7 +1,22 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import NetworkGraph from "../components/motion/NetworkGraph.tsx";
-import { memberCount, linkCount, networkGraph } from "../lib/members";
+import {
+  memberCount,
+  linkCount,
+  memberEdges,
+  networkGraph,
+  type EdgeType,
+} from "../lib/members";
+
+// The graph, as sentences — the text alternative to the visualization.
+const verb: Record<EdgeType, string> = {
+  referred: "was referred by",
+  collaborator: "collaborates with",
+  mentor: "is mentored by",
+  friend: "is friends with",
+  connection: "is connected to",
+};
 ---
 
 <BaseLayout
@@ -46,6 +61,20 @@ import { memberCount, linkCount, networkGraph } from "../lib/members";
         nodes={networkGraph.nodes}
         edges={networkGraph.edges}
       />
+      {
+        linkCount > 0 && (
+          <details class="network-list">
+            <summary>Read the connections as a list</summary>
+            <ul>
+              {memberEdges.map((e) => (
+                <li>
+                  {e.from.name} {verb[e.type]} {e.to.name}
+                </li>
+              ))}
+            </ul>
+          </details>
+        )
+      }
     </div>
 
     <section class="network-how" data-reveal>
@@ -62,7 +91,10 @@ import { memberCount, linkCount, networkGraph } from "../lib/members";
         <li><code>friend</code> — a friend in the 613</li>
       </ul>
       <pre
-        class="code-card"><code>{`"links": [
+        class="code-card"
+        tabindex="0"
+        role="region"
+        aria-label="Example links array"><code>{`"links": [
   { "url": "https://zahin.org", "type": "mentor" },
   "https://builderscollective.ca"
 ]`}</code></pre>
@@ -118,6 +150,27 @@ import { memberCount, linkCount, networkGraph } from "../lib/members";
   }
   .network-viz {
     margin-bottom: 2.5rem;
+  }
+  .network-list {
+    margin-top: 0.8rem;
+    color: var(--text-muted);
+  }
+  .network-list summary {
+    /* Padding (not flex) so the disclosure triangle survives; ~45px tall. */
+    padding-block: 0.65rem;
+    cursor: pointer;
+    font-size: 0.92rem;
+    list-style-position: inside;
+  }
+  .network-list summary:hover {
+    color: var(--text);
+  }
+  .network-list ul {
+    margin: 0.4rem 0 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.3rem;
+    font-size: 0.92rem;
   }
   .network-how {
     max-width: 560px;

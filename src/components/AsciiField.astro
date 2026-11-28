@@ -1,0 +1,77 @@
+---
+/**
+ * Ambient full-viewport ASCII field — a faint, slow shimmer of `0`/`1` with the
+ * BCO mark just barely present in the middle. Sits behind everything.
+ *
+ * Plain canvas + script (no framework island): it is on every page, so it must
+ * not cost a UI runtime. It is also the most expensive thing the site draws —
+ * a full-screen canvas re-uploaded on every frame — so the numbers below are
+ * chosen for cost, not just looks. See the notes in motion/asciiEngine.ts.
+ */
+import { getImage } from "astro:assets";
+import logo from "../assets/bco-logo.png";
+
+// The mask grid is a few dozen cells wide; a tiny rendition is plenty.
+const mask = await getImage({ src: logo, width: 128, format: "webp" });
+---
+
+<canvas
+  class="ascii-field"
+  id="ascii-field"
+  data-mask-src={mask.src}
+  aria-hidden="true"></canvas>
+
+<script>
+  import { AsciiEngine } from "./motion/asciiEngine";
+  import { getLogoMask, maskSrcOf } from "../lib/ascii-mask";
+  import { motionOn, onMotionChange } from "../lib/motion-pref";
+
+  const canvas = document.getElementById(
+    "ascii-field",
+  ) as HTMLCanvasElement | null;
+
+  if (canvas) {
+    const small = window.matchMedia("(max-width: 640px)").matches;
+    const src = maskSrcOf(canvas);
+
+    const start = () => {
+      const engine = new AsciiEngine({
+        canvas,
+        cell: small ? 22 : 18,
+        chars: "01",
+        color: "160,166,180",
+        baseAlpha: 0.085,
+        maskAlpha: 0.22,
+        density: 0.46,
+        maskCover: 0.46,
+        verticalBias: -0.05,
+        getMask: (size) => getLogoMask(size, size, src),
+        reactToScroll: true,
+        // The idle shimmer moves over seconds, so 12fps is indistinguishable
+        // from 24 — and halves the full-screen texture uploads. It steps back
+        // up to 24 while the scroll sparkle is playing.
+        fps: 24,
+        idleFps: 12,
+        // Faint background glyphs don't need retina density; 1.5x is ~45%
+        // fewer pixels than 2x on every frame.
+        maxDpr: 1.5,
+        // Page copy sits directly on top of this layer. Capping glyph alpha
+        // bounds how bright the backdrop can get, which is what keeps the
+        // text colour tokens at 7:1 (see global.css). Don't raise it without
+        // re-checking contrast.
+        maxAlpha: 0.16,
+        speed: 0.8,
+        reducedMotion: !motionOn(),
+      });
+      engine.start();
+      onMotionChange((on) => engine.setMotion(on));
+    };
+
+    // Decorative: let the page finish its first paint before starting.
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(start, { timeout: 1200 });
+    } else {
+      setTimeout(start, 200);
+    }
+  }
+</script>

@@ -1,4 +1,5 @@
 ---
+import NewTab from "./NewTab.astro";
 import { REPO_URL } from "../consts";
 
 const steps = [
@@ -48,7 +49,7 @@ const steps = [
     <div class="how-cta" data-reveal>
       <a class="btn btn-primary" href="/join">Get the widget &amp; join</a>
       <a class="btn" href={REPO_URL} target="_blank" rel="noopener noreferrer"
-        >View the source</a
+        >View the source on GitHub<NewTab /></a
       >
     </div>
   </div>

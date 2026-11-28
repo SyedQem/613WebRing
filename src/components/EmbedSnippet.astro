@@ -37,11 +37,18 @@ const htmlSnippet = `<!-- 613 Webring (no-JS version) -->
   <div class="embed-block">
     <div class="embed-head">
       <span class="embed-label">Recommended · auto widget</span>
-      <button class="copy-btn" type="button" data-copy aria-label="Copy snippet"
-        >Copy</button
+      <button
+        class="copy-btn tap-target"
+        type="button"
+        data-copy
+        aria-label="Copy the auto widget snippet">Copy</button
       >
     </div>
-    <pre class="embed-code"><code>{scriptSnippet}</code></pre>
+    <pre
+      class="embed-code"
+      tabindex="0"
+      role="region"
+      aria-label="Auto widget snippet"><code>{scriptSnippet}</code></pre>
     <p class="embed-note">
       Paste into your footer. The widget renders the ring controls and points
       back here automatically — no configuration needed.
@@ -51,27 +58,39 @@ const htmlSnippet = `<!-- 613 Webring (no-JS version) -->
   <div class="embed-block">
     <div class="embed-head">
       <span class="embed-label">No-JavaScript alternative</span>
-      <button class="copy-btn" type="button" data-copy aria-label="Copy snippet"
-        >Copy</button
+      <button
+        class="copy-btn tap-target"
+        type="button"
+        data-copy
+        aria-label="Copy the no-JavaScript snippet">Copy</button
       >
     </div>
-    <pre class="embed-code"><code>{htmlSnippet}</code></pre>
+    <pre
+      class="embed-code"
+      tabindex="0"
+      role="region"
+      aria-label="No-JavaScript snippet"><code>{htmlSnippet}</code></pre>
     <p class="embed-note">
       Prefer plain HTML? Use this and replace <code>https://your-site.com</code>
       with your own URL in both links.
     </p>
   </div>
+  <!-- Announces "copied" to screen readers (WCAG 4.1.3). -->
+  <p class="visually-hidden" role="status" data-copy-status></p>
 </div>
 
+<!-- Distinct labels so the two preview <nav> landmarks can be told apart. -->
 <script
   src="/widget.js"
   data-target="#webring-613-preview-light"
   data-theme="light"
+  data-label="613 Webring (light preview)"
   defer></script>
 <script
   src="/widget.js"
   data-target="#webring-613-preview-dark"
   data-theme="dark"
+  data-label="613 Webring (dark preview)"
   defer></script>
 
 <style>
@@ -97,7 +116,7 @@ const htmlSnippet = `<!-- 613 Webring (no-JS version) -->
     justify-content: center;
     gap: 1rem;
     min-height: 7rem;
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 0.5rem;
   }
   .preview-pane + .preview-pane {
     border-left: 1px solid var(--border);
@@ -120,11 +139,12 @@ const htmlSnippet = `<!-- 613 Webring (no-JS version) -->
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  /* 7:1 on each pane's own background. */
   .preview-pane--light .preview-label {
-    color: #666666;
+    color: #4a4a4a;
   }
   .preview-pane--dark .preview-label {
-    color: #9a9a9a;
+    color: #c8c8c8;
   }
   .embed-block {
     background: var(--surface);
@@ -206,16 +226,22 @@ const htmlSnippet = `<!-- 613 Webring (no-JS version) -->
       btn.addEventListener("click", async () => {
         const code = btn.closest(".embed-block")?.querySelector("code");
         const text = code?.textContent ?? "";
+        const status = document.querySelector("[data-copy-status]");
         try {
           await navigator.clipboard.writeText(text);
           const original = btn.textContent;
           btn.textContent = "Copied!";
           btn.classList.add("copied");
+          if (status) status.textContent = "Snippet copied to the clipboard.";
           setTimeout(() => {
             btn.textContent = original;
             btn.classList.remove("copied");
+            if (status) status.textContent = "";
           }, 1600);
         } catch {
+          if (status)
+            status.textContent =
+              "Couldn't reach the clipboard — the snippet is selected, press Ctrl or Command + C to copy it.";
           // Clipboard blocked — select the text as a fallback.
           const range = document.createRange();
           if (code) {

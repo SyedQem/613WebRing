@@ -1,27 +1,53 @@
 ---
 /**
- * Builders Collective Ottawa mark — the official chrome asterisk from /public.
+ * Builders Collective Ottawa mark — the official chrome asterisk.
+ *
+ * Rendered through astro:assets, so each use ships a WebP sized for where it is
+ * shown (the nav mark is a ~1 KB file, not the 90 KB original) with a 2x
+ * variant for dense screens. The original stays in /public as well because the
+ * embeddable widget on members' sites links to `/bco-logo.png` directly.
  */
+import { Image } from "astro:assets";
+import logo from "../assets/bco-logo.png";
+
 interface Props {
+  /** Rendered width of the box the mark sits in, in CSS px. */
   size?: number;
   class?: string;
+  /**
+   * Text alternative. Pass "" when the mark is decoration or sits next to
+   * text that already names it.
+   */
   alt?: string;
+  /** Above the fold: load immediately instead of lazily. */
+  eager?: boolean;
+  /** The page's main image (at most one): also fetch it at high priority. */
+  priority?: boolean;
 }
 const {
   size = 32,
   class: className,
   alt = "Builders Collective Ottawa",
+  priority = false,
+  eager = priority,
 } = Astro.props;
+
+const widths = [
+  ...new Set([size, size * 2].map((w) => Math.min(w, logo.width))),
+];
 ---
 
-<img
+<Image
   class:list={["bco-logo", className]}
-  src="/bco-logo.png"
+  src={logo}
   alt={alt}
   width={size}
-  height={size}
+  widths={widths}
+  sizes={`${size}px`}
+  format="webp"
+  loading={eager ? "eager" : "lazy"}
+  fetchpriority={priority ? "high" : undefined}
   decoding="async"
-  loading="eager"
 />
 
 <style>
