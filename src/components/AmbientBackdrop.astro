@@ -3,6 +3,12 @@
  * Ambient backdrop — drifting gradient orbs and a fine film grain layered over
  * the ASCII field. Transparent base (the page colour comes from <body>), so the
  * digits behind it stay visible. Purely decorative.
+ *
+ * This sits on top of a canvas that repaints many times a second, so every
+ * layer here is recomposited at that rate. Keep it cheap: soft edges come from
+ * the gradients themselves (no `filter: blur`), and the grain is plain alpha
+ * (no `mix-blend-mode`, which would force the whole viewport through an
+ * offscreen blend pass on every canvas frame).
  */
 ---
 
@@ -18,6 +24,9 @@
   .ambient {
     position: fixed;
     inset: 0;
+    /* Large-viewport height, like the field: no resize as a phone's URL bar
+       slides away. */
+    height: 100lvh;
     z-index: -1;
     pointer-events: none;
     overflow: hidden;
@@ -25,8 +34,10 @@
   .ambient-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
     opacity: 0.5;
+  }
+  /* The drift only runs (and only claims a compositor layer) with motion on. */
+  :global(html.motion) .ambient-orb {
     will-change: transform;
   }
   .ambient-orb-1 {
@@ -35,10 +46,13 @@
     width: 46vw;
     height: 46vw;
     background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.07),
-      transparent 70%
+      circle closest-side,
+      rgba(255, 255, 255, 0.062),
+      rgba(255, 255, 255, 0.026) 42%,
+      transparent 88%
     );
+  }
+  :global(html.motion) .ambient-orb-1 {
     animation: orb-drift-a 26s ease-in-out infinite;
   }
   .ambient-orb-2 {
@@ -47,10 +61,13 @@
     width: 52vw;
     height: 52vw;
     background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.05),
-      transparent 70%
+      circle closest-side,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.019) 42%,
+      transparent 88%
     );
+  }
+  :global(html.motion) .ambient-orb-2 {
     animation: orb-drift-b 32s ease-in-out infinite;
   }
   .ambient-orb-3 {
@@ -58,11 +75,16 @@
     left: 44%;
     width: 30vw;
     height: 30vw;
+    /* Matches the resting frame of orb-drift-c, for when motion is off. */
+    transform: translate(-50%, 0);
     background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.035),
-      transparent 72%
+      circle closest-side,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.012) 42%,
+      transparent 92%
     );
+  }
+  :global(html.motion) .ambient-orb-3 {
     animation: orb-drift-c 38s ease-in-out infinite;
   }
   .ambient-vignette {
@@ -77,10 +99,13 @@
   .ambient-grain {
     position: absolute;
     inset: 0;
-    opacity: 0.22;
+    /* Deliberately faint: the grain is per-pixel noise directly behind page
+       copy, and its brightest speckles count against text contrast. 0.08 is
+       the most that keeps every text colour at 7:1 (WCAG 1.4.6) when measured
+       against real pixels; the previous 0.22 left body copy near 5.8:1. */
+    opacity: 0.08;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 180px 180px;
-    mix-blend-mode: overlay;
   }
 
   @keyframes orb-drift-a {
@@ -108,11 +133,6 @@
     }
     50% {
       transform: translate(-46%, 6vh);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .ambient-orb {
-      animation: none;
     }
   }
 </style>

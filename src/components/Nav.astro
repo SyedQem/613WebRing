@@ -1,12 +1,25 @@
 ---
 import BcoLogo from "./BcoLogo.astro";
+import NewTab from "./NewTab.astro";
 import { NAV_LINKS, SITE_NAME } from "../consts";
+
+// Tell visitors where they are in the site (WCAG 2.4.8): the link for the
+// page being viewed gets aria-current. In-page anchors ("/#members") aren't
+// pages, so they never match.
+const here = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const isCurrent = (href: string) =>
+  !href.includes("#") && (href.replace(/\/+$/, "") || "/") === here;
 ---
 
 <header class="nav" id="site-nav">
   <div class="container nav-inner">
-    <a class="brand" href="/" aria-label={`${SITE_NAME} — home`}>
-      <BcoLogo size={28} class="brand-logo" />
+    <a
+      class="brand"
+      href="/"
+      aria-label={`${SITE_NAME} — home`}
+      aria-current={here === "/" ? "page" : undefined}
+    >
+      <BcoLogo size={28} class="brand-logo" alt="" eager />
       <span class="brand-text">
         <span class="brand-613">613</span><span class="brand-rest"
           >/WEBRING</span
@@ -20,11 +33,13 @@ import { NAV_LINKS, SITE_NAME } from "../consts";
           <a
             href={link.href}
             class="nav-link"
+            aria-current={isCurrent(link.href) ? "page" : undefined}
             {...("external" in link && link.external
               ? { target: "_blank", rel: "noopener noreferrer" }
               : {})}
           >
             {link.label}
+            {"external" in link && link.external && <NewTab />}
           </a>
         ))
       }
@@ -43,7 +58,11 @@ import { NAV_LINKS, SITE_NAME } from "../consts";
         <span class="nav-toggle-bar"></span>
         <span class="nav-toggle-bar"></span>
       </button>
-      <a class="btn btn-primary nav-cta" href="/join">Join</a>
+      <a
+        class="btn btn-primary nav-cta"
+        href="/join"
+        aria-current={isCurrent("/join") ? "page" : undefined}>Join</a
+      >
     </div>
   </div>
 </header>
@@ -76,6 +95,8 @@ import { NAV_LINKS, SITE_NAME } from "../consts";
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
+    min-height: var(--tap);
+    min-width: var(--tap);
     text-decoration: none;
     color: var(--text);
   }
@@ -106,6 +127,9 @@ import { NAV_LINKS, SITE_NAME } from "../consts";
     margin-left: auto;
   }
   .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
     padding: 0.45rem 0.85rem;
     border-radius: var(--radius-sm);
     color: var(--text-muted);
@@ -120,6 +144,13 @@ import { NAV_LINKS, SITE_NAME } from "../consts";
     background: var(--surface-2);
     text-decoration: none;
   }
+  /* The page you're on: brighter and underlined, so it isn't colour alone. */
+  .nav-link[aria-current="page"] {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
 
   .nav-actions {
     display: flex;
@@ -131,6 +162,12 @@ import { NAV_LINKS, SITE_NAME } from "../consts";
     padding: 0.55rem 1rem;
     font-size: 0.88rem;
   }
+  /* Already on the join page: the solid call-to-action steps back. */
+  .nav-cta[aria-current="page"] {
+    --btn-bg: transparent;
+    --btn-fg: var(--text);
+    --btn-bd: var(--border-ui);
+  }
 
   /* Hamburger — hidden on desktop, shown below 820px. */
   .nav-toggle {
@@ -138,10 +175,10 @@ import { NAV_LINKS, SITE_NAME } from "../consts";
     flex-direction: column;
     justify-content: center;
     gap: 4px;
-    width: 40px;
-    height: 40px;
-    padding: 0 9px;
-    border: 1px solid var(--border-strong);
+    width: var(--tap);
+    height: var(--tap);
+    padding: 0 11px;
+    border: 1px solid var(--border-ui);
     border-radius: var(--radius-sm);
     background: var(--surface);
     cursor: pointer;
@@ -189,14 +226,21 @@ import { NAV_LINKS, SITE_NAME } from "../consts";
       opacity: 0;
       transform: translateY(-6px);
       pointer-events: none;
+      /* `visibility` (not just opacity) takes the closed menu's links out of
+         the tab order and the accessibility tree. It flips instantly on open
+         and only after the fade on close. */
+      visibility: hidden;
       transition:
         opacity 0.18s var(--ease),
-        transform 0.18s var(--ease);
+        transform 0.18s var(--ease),
+        visibility 0s linear 0.18s;
     }
     .nav-links.open {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
+      visibility: visible;
+      transition-delay: 0s;
     }
     .nav-link {
       padding: 0.7rem 0.85rem;

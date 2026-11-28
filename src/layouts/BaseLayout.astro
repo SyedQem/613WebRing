@@ -1,10 +1,12 @@
 ---
 import "../styles/global.css";
+import { Font, getImage } from "astro:assets";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import AmbientBackdrop from "../components/AmbientBackdrop.astro";
-import AsciiField from "../components/motion/AsciiField.tsx";
-import BootLoader from "../components/motion/BootLoader.tsx";
+import AsciiField from "../components/AsciiField.astro";
+import BootLoader from "../components/BootLoader.astro";
+import logo from "../assets/bco-logo.png";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "../consts";
 
 interface Props {
@@ -31,6 +33,8 @@ const pageTitle = title
   : `${SITE_NAME} · Ottawa's builders, ringed`;
 const canonical = new URL(Astro.url.pathname, SITE_URL).href;
 const ogImage = new URL(image, SITE_URL).href;
+// A tab-sized rendition of the mark (the full PNG in /public is ~90 KB).
+const favicon = await getImage({ src: logo, width: 96, format: "png" });
 ---
 
 <!doctype html>
@@ -59,22 +63,28 @@ const ogImage = new URL(image, SITE_URL).href;
     <meta name="twitter:image" content={ogImage} />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/bco-logo.png" />
+    <link rel="icon" type="image/png" href={favicon.src} />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Fonts: self-hosted (see `fonts` in astro.config.mjs). The two families
+         that paint above the fold are preloaded; the mono face is not. -->
+    <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-space-grotesk" preload />
+    <Font cssVariable="--font-jetbrains-mono" />
 
     <script is:inline>
       (function () {
         try {
           var root = document.documentElement;
+          // The visitor's own choice from the footer's "Pause animations"
+          // control (src/lib/motion-pref.ts) — honoured before first paint.
+          var paused = false;
+          try {
+            paused = localStorage.getItem("613:motion") === "off";
+          } catch (e) {}
+          if (paused) root.setAttribute("data-motion-user", "off");
           if (
             root.getAttribute("data-motion") === "on" &&
+            !paused &&
             !window.matchMedia("(prefers-reduced-motion: reduce)").matches
           ) {
             root.classList.add("motion");
@@ -105,15 +115,14 @@ const ogImage = new URL(image, SITE_URL).href;
         <slot />
       ) : (
         <>
-          <div id="boot-cover" aria-hidden="true" />
-          <BootLoader client:load />
-          <AsciiField client:load />
-          <AmbientBackdrop />
           <a class="skip-link" href="#main">
             Skip to content
           </a>
+          <BootLoader />
+          <AsciiField />
+          <AmbientBackdrop />
           <Nav />
-          <main id="main">
+          <main id="main" tabindex="-1">
             <slot />
           </main>
           <Footer />

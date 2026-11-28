@@ -7,6 +7,12 @@
  * It owns its own sizing (ResizeObserver), animation loop (rAF with an fps
  * cap), tab-visibility pausing and an optional pointer ripple. Scroll reactivity
  * reads `window.lenis.velocity` when present.
+ *
+ * Cost notes — every frame re-uploads the whole canvas to the GPU, so the two
+ * numbers that matter are backing-store pixels (`maxDpr`) and frames per second
+ * (`idleFps` while nothing is happening, `fps` while the page scrolls). The
+ * loop also stops entirely while the tab is hidden, the canvas is off-screen
+ * or motion is switched off (`setMotion(false)`).
  */
 import type { Mask } from "../../lib/ascii-mask";
 
@@ -32,6 +38,15 @@ export type AsciiOptions = {
   reactToScroll?: boolean;
   interactive?: boolean;
   fps?: number;
+  /** Frame rate while the page is not scrolling. Defaults to `fps`. */
+  idleFps?: number;
+  /** Upper bound on the backing-store pixel ratio. */
+  maxDpr?: number;
+  /**
+   * Hard ceiling on any glyph's alpha. Layers that sit behind text use this to
+   * bound how bright the backdrop can get (text contrast, WCAG 1.4.6).
+   */
+  maxAlpha?: number;
   speed?: number;
   reducedMotion?: boolean;
 };
@@ -59,6 +74,10 @@ export class AsciiEngine {
   private running = false;
   private mouse = { x: -1, y: -1, on: false };
   private ro?: ResizeObserver;
+  private io?: IntersectionObserver;
+  private started = false;
+  private onScreen = true;
+  private boost = 0;
 
   constructor(opts: AsciiOptions) {
     this.o = {
@@ -73,6 +92,9 @@ export class AsciiEngine {
       reactToScroll: false,
       interactive: false,
       fps: 30,
+      idleFps: opts.fps ?? 30,
+      maxDpr: 2,
+      maxAlpha: 1,
       speed: 1,
       reducedMotion: false,
       ...opts,
@@ -88,42 +110,62 @@ export class AsciiEngine {
   }
 
   start() {
+    this.started = true;
     this.resize();
     this.ro = new ResizeObserver(this.resize);
     this.ro.observe(this.o.canvas);
+    // Don't burn frames on a canvas nobody can see.
+    this.io = new IntersectionObserver((entries) => {
+      this.onScreen = entries[entries.length - 1].isIntersecting;
+      this.sync();
+    });
+    this.io.observe(this.o.canvas);
     document.addEventListener("visibilitychange", this.onVisibility);
     if (this.o.interactive) {
       this.o.canvas.addEventListener("pointermove", this.onPointerMove);
       this.o.canvas.addEventListener("pointerleave", this.onPointerLeave);
     }
-    if (this.o.reducedMotion) {
-      this.draw(0);
-      return;
-    }
-    this.running = true;
-    this.last = performance.now();
-    this.raf = requestAnimationFrame(this.frame);
+    this.sync();
   }
 
   destroy() {
-    this.running = false;
-    cancelAnimationFrame(this.raf);
+    this.started = false;
+    this.sync();
     this.ro?.disconnect();
+    this.io?.disconnect();
     document.removeEventListener("visibilitychange", this.onVisibility);
     this.o.canvas.removeEventListener("pointermove", this.onPointerMove);
     this.o.canvas.removeEventListener("pointerleave", this.onPointerLeave);
   }
 
-  private onVisibility() {
-    if (this.o.reducedMotion) return;
-    if (document.hidden) {
-      this.running = false;
-      cancelAnimationFrame(this.raf);
-    } else if (!this.running) {
-      this.running = true;
+  /**
+   * Turn animation on or off at runtime (the footer's "Pause animations"
+   * control). Off leaves a single still frame on the canvas.
+   */
+  setMotion(on: boolean) {
+    this.o.reducedMotion = !on;
+    this.sync();
+    if (!on) this.draw(0);
+  }
+
+  /** Start or stop the loop so it only runs when it has something to show. */
+  private sync() {
+    const shouldRun =
+      this.started &&
+      !this.o.reducedMotion &&
+      this.onScreen &&
+      !document.hidden;
+    if (shouldRun === this.running) return;
+    this.running = shouldRun;
+    cancelAnimationFrame(this.raf);
+    if (shouldRun) {
       this.last = performance.now();
       this.raf = requestAnimationFrame(this.frame);
     }
+  }
+
+  private onVisibility() {
+    this.sync();
   }
 
   private onPointerMove(e: PointerEvent) {
@@ -137,16 +179,25 @@ export class AsciiEngine {
   private async resize() {
     const r = this.o.canvas.getBoundingClientRect();
     if (!r.width || !r.height) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, this.o.maxDpr);
+    // ResizeObserver also fires for no-op changes; reallocating the backing
+    // store (and re-rolling every seed) is the expensive part, so skip it.
+    if (r.width === this.cssW && r.height === this.cssH && dpr === this.dpr)
+      return;
     this.cssW = r.width;
     this.cssH = r.height;
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.dpr = dpr;
     this.o.canvas.width = Math.floor(r.width * this.dpr);
     this.o.canvas.height = Math.floor(r.height * this.dpr);
-    this.cols = Math.max(1, Math.floor(r.width / this.o.cell));
-    this.rows = Math.max(1, Math.floor(r.height / this.o.cell));
+    const cols = Math.max(1, Math.floor(r.width / this.o.cell));
+    const rows = Math.max(1, Math.floor(r.height / this.o.cell));
 
-    this.seeds = new Float32Array(this.cols * this.rows);
-    for (let i = 0; i < this.seeds.length; i++) this.seeds[i] = Math.random();
+    if (cols !== this.cols || rows !== this.rows) {
+      this.cols = cols;
+      this.rows = rows;
+      this.seeds = new Float32Array(cols * rows);
+      for (let i = 0; i < this.seeds.length; i++) this.seeds[i] = Math.random();
+    }
 
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.ctx.font = `${this.o.cell * 0.92}px ui-monospace, "JetBrains Mono", "Cascadia Code", monospace`;
@@ -179,7 +230,8 @@ export class AsciiEngine {
 
   private frame(now: number) {
     if (!this.running) return;
-    const interval = 1000 / this.o.fps;
+    // Full rate only while the scroll-reactive sparkle is actually playing.
+    const interval = 1000 / (this.boost > 0 ? this.o.fps : this.o.idleFps);
     if (now - this.last >= interval) {
       this.last = now - ((now - this.last) % interval);
       this.draw(now / 1000);
@@ -195,6 +247,7 @@ export class AsciiEngine {
     const lenis = (window as unknown as { lenis?: Lenis }).lenis;
     const v = o.reactToScroll && lenis?.velocity ? Math.abs(lenis.velocity) : 0;
     const boost = Math.min(v / 24, 3.2);
+    this.boost = boost;
     const speed = o.speed * (1 + boost * 0.8);
     const rippleR = 5;
 
@@ -235,7 +288,7 @@ export class AsciiEngine {
         }
 
         if (a <= 0.012) continue;
-        ctx.globalAlpha = Math.min(1, a);
+        ctx.globalAlpha = Math.min(o.maxAlpha, a);
         // 0/1 flips per cell over time (and snap to '1' inside the dense logo)
         const flip =
           Math.sin(t * speed * (0.6 + seed) + seed * 100) > 0 ? 1 : 0;

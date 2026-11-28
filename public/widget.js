@@ -74,9 +74,11 @@
         window.matchMedia &&
         window.matchMedia("(prefers-color-scheme: dark)").matches);
 
+    // Colours keep a 7:1 contrast against the pill, including on hover
+    // (WCAG 1.4.6) — check the ratios before changing any of them.
     var bg = dark ? "#111111" : "#ffffff";
     var fg = dark ? "#f0f0f0" : "#080808";
-    var muted = dark ? "#9a9a9a" : "#666666";
+    var muted = dark ? "#bebebe" : "#4a4a4a";
     var border = dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.1)";
     var hoverBg = dark ? "#1a1a1a" : "#f0f0f0";
     var shadow = dark
@@ -92,16 +94,22 @@
       fg +
       ";border:1px solid " +
       border +
-      ";border-radius:999px;padding:.28rem .35rem;box-shadow:" +
+      ";border-radius:999px;padding:1px;box-shadow:" +
       shadow +
-      ";font-size:13px;line-height:1;max-width:100%}" +
-      ".wr a{display:inline-flex;align-items:center;gap:.35rem;text-decoration:none;color:inherit;" +
+      ";font-size:13px;line-height:1;max-width:100%;white-space:nowrap}" +
+      // Every link is at least a 44x44px target (WCAG 2.5.5).
+      ".wr a{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;" +
+      "min-width:44px;min-height:44px;text-decoration:none;color:inherit;" +
       "padding:.38rem .55rem;border-radius:999px;transition:background .15s ease,color .15s ease}" +
       ".wr a:hover{background:" +
       hoverBg +
       ";color:" +
       fg +
       "}" +
+      ".wr a:focus-visible{outline:2px solid " +
+      fg +
+      ";outline-offset:-2px}" +
+      "@media (prefers-reduced-motion:reduce){.wr a{transition:none}}" +
       ".wr .arrow{font-family:ui-monospace,'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.02em;color:" +
       muted +
       "}" +
@@ -125,22 +133,27 @@
       '<nav class="wr" aria-label="' +
       label +
       '">' +
+      // The glyph-only links carry their purpose in aria-label (and title, for
+      // a hover tooltip); the glyphs themselves are hidden from screen readers.
       '<a class="arrow" href="' +
       hop("prev") +
-      '" title="Previous site in the ring" rel="noopener">&larr;</a>' +
+      '" title="Previous site in the ring" aria-label="Previous site in the 613 Webring" rel="noopener">' +
+      '<span aria-hidden="true">&larr;</span></a>' +
       '<a class="mid" href="' +
       base +
       '" title="' +
       label +
-      '" rel="noopener" target="_blank">' +
+      ' (opens in a new tab)" aria-label="613 Webring home (opens in a new tab)" rel="noopener" target="_blank">' +
       markImg() +
       "<span><b>613</b> Webring</span></a>" +
       '<a class="dice" href="' +
       hop("random") +
-      '" title="Random site in the ring" rel="noopener">&#9166;</a>' +
+      '" title="Random site in the ring" aria-label="Random site in the 613 Webring" rel="noopener">' +
+      '<span aria-hidden="true">&#9166;</span></a>' +
       '<a class="arrow" href="' +
       hop("next") +
-      '" title="Next site in the ring" rel="noopener">&rarr;</a>' +
+      '" title="Next site in the ring" aria-label="Next site in the 613 Webring" rel="noopener">' +
+      '<span aria-hidden="true">&rarr;</span></a>' +
       "</nav>";
 
     root.innerHTML = html;

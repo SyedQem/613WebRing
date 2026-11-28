@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import EmbedSnippet from "../components/EmbedSnippet.astro";
+import NewTab from "../components/NewTab.astro";
 import { REPO_URL, REPO_EDIT_MEMBERS_URL, REPO_NEW_PR_URL } from "../consts";
 
 const entryExample = `{
@@ -26,7 +27,7 @@ const fields = [
   {
     name: "role",
     req: false,
-    desc: 'Title or affiliation, e.g. "SWE @ Shopify".',
+    desc: 'Title or affiliation, e.g. "Software engineer @ Shopify".',
   },
   {
     name: "location",
@@ -93,7 +94,11 @@ const faqs = [
           <code>src/data/members.json</code>. Only <strong>name</strong> and
           <strong>website</strong> are required — everything else is optional.
         </p>
-        <pre class="code-card"><code>{entryExample}</code></pre>
+        <pre
+          class="code-card"
+          tabindex="0"
+          role="region"
+          aria-label="Example members.json entry"><code>{entryExample}</code></pre>
 
         <div class="fields">
           {
@@ -120,6 +125,7 @@ const faqs = [
           rel="noopener noreferrer"
         >
           Edit members.json on GitHub
+          <NewTab />
         </a>
       </div>
     </section>
@@ -144,9 +150,9 @@ const faqs = [
       <div class="step-content">
         <h2>Open your pull request</h2>
         <p>
-          Commit your change and open a PR. A maintainer reviews it (automated
-          checks make sure your entry is valid), and once merged you're live on
-          the ring.
+          Commit your change and open a pull request. A maintainer reviews it
+          (automated checks make sure your entry is valid), and once merged
+          you're live on the ring.
         </p>
         <div class="step-cta">
           <a
@@ -156,6 +162,7 @@ const faqs = [
             rel="noopener noreferrer"
           >
             Open a pull request
+            <NewTab />
           </a>
           <a
             class="btn"
@@ -164,6 +171,7 @@ const faqs = [
             rel="noopener noreferrer"
           >
             Read CONTRIBUTING.md
+            <NewTab />
           </a>
         </div>
       </div>
@@ -234,6 +242,8 @@ const faqs = [
     margin-bottom: 0.5rem;
   }
   .step-content > p {
+    /* Keeps lines under ~80 characters (WCAG 1.4.8). */
+    max-width: 64ch;
     color: var(--text-muted);
     margin-bottom: 1.1rem;
   }
@@ -296,7 +306,7 @@ const faqs = [
   }
   .req {
     background: var(--accent-soft);
-    color: var(--text-muted);
+    color: var(--text);
   }
   .opt {
     background: var(--surface-2);
@@ -339,6 +349,7 @@ const faqs = [
     color: var(--text-muted);
   }
   .faq-item p {
+    max-width: 64ch;
     color: var(--text-muted);
     padding: 0 0 0.9rem;
     margin: 0;

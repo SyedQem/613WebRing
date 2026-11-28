@@ -1,0 +1,206 @@
+---
+/**
+ * First-load boot sequence: a screen of random `0`/`1` that decodes into the
+ * BCO mark, with staggered boot lines. Shows once per session, then fades out
+ * and hands scroll back to Lenis through a `boot:done` event.
+ *
+ * The overlay is plain server-rendered markup, displayed by CSS as soon as the
+ * inline <head> script puts `booting` on <html> (see BOOT LOADER in
+ * global.css). The script below only drives the canvas and the exit — so the
+ * sequence starts on first paint instead of after a framework hydrates, and
+ * pages that aren't booting pay nothing for it.
+ *
+ * It is decorative (aria-hidden): the real page is already in the DOM beneath
+ * it, and any key or click dismisses it.
+ */
+import { getImage } from "astro:assets";
+import logo from "../assets/bco-logo.png";
+
+const mask = await getImage({ src: logo, width: 128, format: "webp" });
+---
+
+<div class="boot" id="boot" data-mask-src={mask.src} aria-hidden="true">
+  <canvas class="boot-canvas"></canvas>
+  <div class="boot-meta">
+    <p class="boot-title">613&nbsp;/&nbsp;WEBRING</p>
+    <p class="boot-sub">Builders Collective Ottawa</p>
+    <div class="boot-bar"><span class="boot-bar-fill"></span></div>
+    <p class="boot-hint">Initializing ring…</p>
+  </div>
+</div>
+
+<script>
+  import { getLogoMask, maskSrcOf, type Mask } from "../lib/ascii-mask";
+
+  const KEY = "613:booted";
+  const DURATION = 1900;
+  const HOLD = 500;
+  const FADE = 700;
+
+  const root = document.documentElement;
+  const boot = document.getElementById("boot");
+
+  if (boot && !root.classList.contains("booting")) {
+    boot.remove();
+  } else if (boot) {
+    const canvas = boot.querySelector<HTMLCanvasElement>(".boot-canvas");
+    const fill = boot.querySelector<HTMLElement>(".boot-bar-fill");
+    const hint = boot.querySelector<HTMLElement>(".boot-hint");
+    const ctx = canvas?.getContext("2d");
+
+    let raf = 0;
+    let done = false;
+    let canSkip = false;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      cancelAnimationFrame(raf);
+      window.clearTimeout(skipTimer);
+      window.removeEventListener("resize", layout);
+      window.removeEventListener("keydown", onKey, true);
+      try {
+        sessionStorage.setItem(KEY, "1");
+      } catch {
+        /* private mode — boot will simply replay next load */
+      }
+      // If the failsafe in <head> (or the pause control) already dropped
+      // `booting`, the overlay is hidden — don't flash it back in for a fade.
+      const visible = root.classList.contains("booting");
+      if (visible) boot.classList.add("is-leaving");
+      root.classList.remove("booting");
+      window.dispatchEvent(new Event("boot:done"));
+      window.setTimeout(() => boot.remove(), visible ? FADE + 50 : 0);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      // Any real key skips (bare modifiers don't count). The key itself still
+      // does its normal job — Tab lands on the page underneath.
+      if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) return;
+      finish();
+    };
+    window.addEventListener("keydown", onKey, true);
+    boot.addEventListener("click", () => {
+      if (canSkip) finish();
+    });
+    const skipTimer = window.setTimeout(() => {
+      canSkip = true;
+      if (hint) hint.textContent = "Click or press any key to enter";
+    }, 650);
+
+    const cell = 13;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let cols = 0;
+    let rows = 0;
+    let seeds = new Float32Array(0);
+    let thresholds = new Float32Array(0);
+    let mask: Mask | null = null;
+    let maskSize = 0;
+    let offX = 0;
+    let offY = 0;
+    let w = 0;
+    let h = 0;
+
+    function layout() {
+      if (!canvas || !ctx) return;
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      cols = Math.ceil(w / cell);
+      rows = Math.ceil(h / cell);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.font = `${cell * 0.92}px ui-monospace, "JetBrains Mono", monospace`;
+      ctx.textBaseline = "top";
+      seeds = new Float32Array(cols * rows);
+      thresholds = new Float32Array(cols * rows);
+      const cx = cols / 2;
+      const cy = rows / 2;
+      const maxd = Math.hypot(cx, cy) || 1;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const i = r * cols + c;
+          seeds[i] = Math.random();
+          const d = Math.hypot(c - cx, r - cy) / maxd;
+          thresholds[i] = d * 0.7 + Math.random() * 0.3;
+        }
+      }
+      maskSize = Math.round(Math.min(cols, rows) * 0.5);
+      offX = Math.floor((cols - maskSize) / 2);
+      // Bias the decoded mark up so the boot lines get a clear band below it.
+      offY = Math.floor((rows - maskSize) / 2 - rows * 0.1);
+    }
+
+    const maskAt = (c: number, r: number) => {
+      if (!mask) return 0;
+      const mx = c - offX;
+      const my = r - offY;
+      if (mx < 0 || my < 0 || mx >= mask.cols || my >= mask.rows) return 0;
+      return mask.data[my * mask.cols + mx];
+    };
+
+    const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
+    let startTime = 0;
+
+    const draw = (now: number) => {
+      if (done || !ctx) return;
+      if (!startTime) startTime = now;
+      const elapsed = now - startTime;
+      const ep = easeOutCubic(Math.min(elapsed / DURATION, 1));
+      if (fill) fill.style.transform = `scaleX(${ep})`;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "rgb(226,228,236)";
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const i = r * cols + c;
+          const seed = seeds[i];
+          const m = maskAt(c, r);
+          const resolved = ep >= thresholds[i];
+          let a: number;
+          let ch: string;
+          if (!resolved) {
+            a = 0.14 * (0.5 + 0.5 * Math.sin(now / 110 + seed * 30));
+            ch = Math.sin(now / 90 + seed * 50) > 0 ? "1" : "0";
+          } else if (m > 0.04) {
+            a = 0.25 + 0.75 * m;
+            ch = m > 0.6 ? "1" : seed > 0.5 ? "1" : "0";
+          } else {
+            a = 0.13 * (1 - ep) * ((seed * 53.3) % 1 < 0.5 ? 1 : 0);
+            if (a <= 0.01) continue;
+            ch = seed > 0.5 ? "1" : "0";
+          }
+          ctx.globalAlpha = Math.min(1, a);
+          ctx.fillText(ch, c * cell, r * cell);
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      if (elapsed < DURATION + HOLD) raf = requestAnimationFrame(draw);
+      else finish();
+    };
+
+    if (!canvas || !ctx) {
+      // No canvas support: keep the title card up briefly, then move on.
+      window.setTimeout(finish, 600);
+    } else {
+      layout();
+      window.addEventListener("resize", layout);
+      // Wait for the mark's mask so it decodes with everything else — but only
+      // briefly: on a slow connection the sequence starts without it rather
+      // than holding the page hostage.
+      const begin = () => {
+        if (!done && !raf) raf = requestAnimationFrame(draw);
+      };
+      getLogoMask(maskSize, maskSize, maskSrcOf(boot))
+        .then((m) => {
+          mask = m;
+        })
+        .catch(() => {
+          /* the sequence still completes on the timer without the mark */
+        })
+        .finally(begin);
+      window.setTimeout(begin, 350);
+    }
+  }
+</script>

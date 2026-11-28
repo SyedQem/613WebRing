@@ -7,13 +7,15 @@ interface Props {
 const { member } = Astro.props;
 
 // Deterministic monogram shade (neutral greyscale steps) when no avatar.
+// The lightest step is as light as it can go while the initials (--text) keep
+// a 7:1 contrast on top of it (WCAG 1.4.6). NetworkGraph.tsx uses the same set.
 const palette = [
   "#1c1c1c",
-  "#2a2a2a",
-  "#383838",
-  "#4a4a4a",
-  "#5c5c5c",
-  "#707070",
+  "#262626",
+  "#303030",
+  "#3a3a3a",
+  "#444444",
+  "#4c4c4c",
 ];
 const hash = [...member.name].reduce((a, c) => a + c.charCodeAt(0), 0);
 const swatch = palette[hash % palette.length];
@@ -46,6 +48,7 @@ const initials = member.name
           src={member.avatar}
           alt=""
           loading="lazy"
+          decoding="async"
           width="48"
           height="48"
         />
@@ -95,6 +98,7 @@ const initials = member.name
       )
     }
   </div>
+  <span class="visually-hidden">(opens in a new tab)</span>
 </a>
 
 <style>

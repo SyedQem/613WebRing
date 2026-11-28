@@ -115,5 +115,14 @@
     "tags": ["Full-stack", "Artificial Intelligence", "Harness Engineer", "typescript", "react", "Django", "postgresql", "sdd", "Machine Learning", "Python"],
     "blurb": "Building the 4th industrial revolution.",
     "links": [{ "url": "https://salimdellali.com", "type": "referred" }]
+  },
+  {
+    "name": "Jeremy Friesen",
+    "website": "https://jeremy-friesen.com/",
+    "role": "Cyber Security Intern",
+    "location": "Ottawa, ON",
+    "tags": ["Full-stack", "Artificial Intelligence", "TypeScript", "react", "Machine Learning", "Python"],
+    "blurb": "Doing things!",
+    "links": [{ "url": "https://watson752.github.io/", "type": "friend" }, { "url": "https://saimhashmi.is-a.dev/", "type": "friend" }]
   }
 ]
